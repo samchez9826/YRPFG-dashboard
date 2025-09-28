@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>扬子江药业巡视数据看板系统</title>
+    <title>扬子江药业集团 巡视驾驶舱</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -20,6 +20,7 @@
             overflow-x: hidden;
         }
 
+        /* 头部区域 */
         .header {
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(20px);
@@ -28,12 +29,13 @@
             top: 0;
             z-index: 100;
             box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+            padding: 20px 0;
         }
 
         .header-content {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -70,228 +72,559 @@
             font-size: 0.9rem;
         }
 
-        .header-stats {
+        .header-status {
             display: flex;
-            gap: 20px;
+            align-items: center;
+            gap: 15px;
         }
 
-        .header-stat {
-            text-align: center;
-            padding: 10px 15px;
-            background: rgba(102, 126, 234, 0.1);
-            border-radius: 10px;
+        .status-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
-        .header-stat-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        .header-stat-label {
-            font-size: 0.8rem;
-            color: #718096;
-            margin-top: 2px;
-        }
-
+        /* 容器 */
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 30px 20px;
         }
 
-        .kpi-section {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .kpi-card {
+        /* 巡视工作进度突出展示区 */
+        .progress-highlight {
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 30px;
-            text-align: center;
+            margin-bottom: 30px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(222, 226, 230, 0.8);
+        }
+
+        .progress-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 25px;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .progress-stat {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .progress-stat.completed {
+            border-color: #28a745;
+        }
+
+        .progress-stat.total {
+            border-color: #0366d6;
+        }
+
+        .progress-stat.percentage {
+            border-color: #fd7e14;
+        }
+
+        .progress-stat.issues {
+            border-color: #dc3545;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .completed .stat-value { color: #28a745; }
+        .total .stat-value { color: #0366d6; }
+        .percentage .stat-value { color: #fd7e14; }
+        .issues .stat-value { color: #dc3545; }
+
+        .stat-detail {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        /* 进度条可视化 */
+        .progress-visual {
+            margin-top: 20px;
+        }
+
+        .progress-visual h3 {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e1e4e8;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 12px;
+            width: 33.3%;
+            position: relative;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .progress-labels {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .progress-label {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .label-normal { background: #28a745; }
+        .label-target { background: #0366d6; }
+
+        /* 核心风险指标总览区 */
+        .risk-overview {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .risk-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .risk-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             position: relative;
             overflow: hidden;
         }
 
-        .kpi-card::before {
+        .risk-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
         }
 
-        .kpi-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        .risk-card.high-risk::before {
+            background: linear-gradient(90deg, #dc3545, #c82333);
         }
 
-        .kpi-card.danger::before {
-            background: linear-gradient(90deg, #ff6b6b, #ee5a52);
+        .risk-card.medium-risk::before {
+            background: linear-gradient(90deg, #fd7e14, #e55100);
         }
 
-        .kpi-card.warning::before {
-            background: linear-gradient(90deg, #ffa726, #fb8c00);
+        .risk-card.low-risk::before {
+            background: linear-gradient(90deg, #28a745, #20c997);
         }
 
-        .kpi-card.success::before {
-            background: linear-gradient(90deg, #66bb6a, #43a047);
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
-        .kpi-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .kpi-card.danger .kpi-value {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .kpi-card.warning .kpi-value {
-            background: linear-gradient(135deg, #ffa726, #fb8c00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .kpi-card.success .kpi-value {
-            background: linear-gradient(135deg, #66bb6a, #43a047);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .kpi-label {
+        .risk-title {
             font-size: 1rem;
-            color: #4a5568;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .risk-level {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .risk-level.high { background: #dc3545; }
+        .risk-level.medium { background: #fd7e14; }
+        .risk-level.low { background: #28a745; }
+
+        .risk-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .high-risk .risk-value { color: #dc3545; }
+        .medium-risk .risk-value { color: #fd7e14; }
+        .low-risk .risk-value { color: #28a745; }
+
+        .risk-details {
+            font-size: 0.85rem;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        .risk-highlight {
+            font-size: 0.8rem;
+            margin-top: 8px;
             font-weight: 500;
         }
 
-        .modules-section {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            margin-bottom: 40px;
-        }
+        .high-risk .risk-highlight { color: #dc3545; }
+        .medium-risk .risk-highlight { color: #fd7e14; }
+        .low-risk .risk-highlight { color: #28a745; }
 
-        .module-card {
+        /* 问题分级与分布区 */
+        .issue-classification {
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 30px;
+            margin-bottom: 30px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
         }
 
-        .module-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-
-        .module-card.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .module-header {
+        .issue-levels {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .module-title {
-            font-size: 1.3rem;
-            font-weight: 600;
+        .issue-level {
+            display: flex;
+            align-items: flex-start;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+
+        .issue-level.level-a { border-left-color: #dc3545; }
+        .issue-level.level-b { border-left-color: #fd7e14; }
+        .issue-level.level-c { border-left-color: #ffc107; }
+
+        .issue-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 15px;
+            margin-top: 2px;
+        }
+
+        .level-a .issue-indicator { background: #dc3545; }
+        .level-b .issue-indicator { background: #fd7e14; }
+        .level-c .issue-indicator { background: #ffc107; }
+
+        .issue-content {
+            flex: 1;
+        }
+
+        .issue-header {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #2d3748;
             margin-bottom: 5px;
         }
 
-        .module-subtitle {
+        .issue-examples {
             font-size: 0.9rem;
-            opacity: 0.7;
+            color: #6c757d;
+            margin-bottom: 8px;
         }
 
-        .module-icon {
-            width: 50px;
-            height: 50px;
+        .issue-description {
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .level-a .issue-description { color: #dc3545; }
+        .level-b .issue-description { color: #fd7e14; }
+        .level-c .issue-description { color: #e67e22; }
+
+        /* 各区域风险热力图 */
+        .regional-heatmap {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .heatmap-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
-        .module-card:not(.active) .module-icon {
+        .heatmap-table th {
             background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 12px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.9rem;
         }
 
-        .module-card.active .module-icon {
-            background: rgba(255,255,255,0.2);
+        .heatmap-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+            text-align: center;
         }
 
-        .module-stats {
+        .heatmap-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .region-name {
+            text-align: left !important;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .risk-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            display: inline-block;
+            min-width: 60px;
+        }
+
+        .risk-high { background: #dc3545; }
+        .risk-medium { background: #fd7e14; }
+        .risk-low { background: #28a745; }
+
+        .risk-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .indicator-high { background: #dc3545; }
+        .indicator-medium { background: #fd7e14; }
+        .indicator-low { background: #28a745; }
+
+        .issue-detail {
+            text-align: left !important;
+            font-size: 0.8rem;
+            color: #2d3748;
+            line-height: 1.3;
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+        }
+
+        .status-good { color: #28a745; }
+        .status-warning { color: #fd7e14; }
+        .status-danger { color: #dc3545; }
+
+        .action-link {
+            color: #0366d6;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .action-link:hover {
+            color: #0256cc;
+        }
+
+        /* 快速操作区 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .action-btn.primary { background: linear-gradient(135deg, #0366d6, #0256cc); }
+        .action-btn.success { background: linear-gradient(135deg, #28a745, #20c997); }
+        .action-btn.warning { background: linear-gradient(135deg, #fd7e14, #e55100); }
+        .action-btn.secondary { background: linear-gradient(135deg, #6c757d, #5a6268); }
+        .action-btn.info { background: linear-gradient(135deg, #17a2b8, #138496); }
+
+        /* 重要提醒 */
+        .important-reminders {
+            background: rgba(255, 243, 205, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid #ffeaa7;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .reminder-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .reminder-list {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
 
-        .module-stat {
+        .reminder-item {
+            font-size: 0.9rem;
+            color: #856404;
+            line-height: 1.4;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .reminder-item::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* 底部信息栏 */
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 20px 0;
             text-align: center;
-            padding: 15px;
-            background: rgba(0,0,0,0.05);
-            border-radius: 12px;
         }
 
-        .module-card.active .module-stat {
-            background: rgba(255,255,255,0.15);
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .module-stat-value {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 5px;
+        .footer-info {
+            font-size: 0.85rem;
+            opacity: 0.9;
         }
 
-        .module-stat-label {
-            font-size: 0.8rem;
-            opacity: 0.8;
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .progress-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .risk-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .quick-actions {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
-        .detail-panel {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            display: none;
-            margin-top: 30px;
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            .progress-stats,
+            .risk-cards,
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            .reminder-list {
+                grid-template-columns: 1fr;
+            }
+            .footer-content {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
 
-        .detail-panel.active {
-            display: block;
-            animation: fadeInUp 0.3s ease-out;
-        }
-
+        /* 动画效果 */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -303,1216 +636,1046 @@
             }
         }
 
-        .detail-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f7fafc;
+        .progress-highlight,
+        .risk-card,
+        .issue-classification,
+        .regional-heatmap,
+        .important-reminders {
+            animation: fadeInUp 0.6s ease-out;
         }
 
-        .detail-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .close-btn {
-            background: #e2e8f0;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .close-btn:hover {
-            background: #cbd5e0;
-        }
-
-        /* 对称网格布局 */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .chart-container {
-            background: #f8fafc;
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid #e2e8f0;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 不同尺寸的图表容器 */
-        .chart-small {
-            grid-column: span 2;
-            min-height: 320px;
-            max-height: 320px;
-        }
-
-        .chart-medium {
-            grid-column: span 3;
-            min-height: 340px;
-            max-height: 340px;
-        }
-
-        .chart-large {
-            grid-column: span 4;
-            min-height: 370px;
-            max-height: 370px;
-        }
-
-        .chart-full {
-            grid-column: span 6;
-            min-height: 400px;
-            max-height: 400px;
-        }
-
-        .chart-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #2d3748;
-            text-align: center;
-        }
-
-        .data-table-container {
-            background: #f8fafc;
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .table-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        .data-table th {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 15px 12px;
-            font-weight: 600;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        .data-table td {
-            padding: 15px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.9rem;
-        }
-
-        .data-table tr:hover {
-            background: #f8fafc;
-        }
-
-        .data-table .number {
-            text-align: right;
-            font-weight: 600;
-        }
-
-        .data-table .negative {
-            color: #e53e3e;
-        }
-
-        .data-table .positive {
-            color: #38a169;
-        }
-
-        .progress-ring {
-            position: relative;
-            display: inline-block;
-            margin: 10px;
-        }
-
-        .progress-ring-circle {
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
-
-        .progress-ring-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 14px;
-            font-weight: bold;
-            color: #2d3748;
-        }
-
-        @media (max-width: 1200px) {
-            .charts-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .chart-small {
-                grid-column: span 2;
-            }
-            .chart-medium {
-                grid-column: span 2;
-            }
-            .chart-large {
-                grid-column: span 4;
-            }
-            .chart-full {
-                grid-column: span 4;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 15px;
-            }
-
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
-            }
-
-            .header-stats {
-                justify-content: center;
-            }
-
-            .kpi-section {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .modules-section {
-                grid-template-columns: 1fr;
-            }
-
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .chart-small,
-            .chart-medium,
-            .chart-large,
-            .chart-full {
-                grid-column: span 1;
-            }
-
-            .module-stats {
-                grid-template-columns: 1fr;
-            }
-        }
+        .risk-card:nth-child(2) { animation-delay: 0.1s; }
+        .risk-card:nth-child(3) { animation-delay: 0.2s; }
+        .risk-card:nth-child(4) { animation-delay: 0.3s; }
     </style>
 </head>
 <body>
+    <!-- 头部标题区 -->
     <div class="header">
         <div class="header-content">
             <div class="logo-section">
                 <div class="company-logo">扬</div>
                 <div class="header-text">
-                    <h1>扬子江药业集团巡视数据看板</h1>
-                    <p>2025年8月巡视工作数据分析系统</p>
+                    <h1>扬子江药业集团 巡视驾驶舱</h1>
+                    <p>2025年9月 | 经营总公司巡视组 | 最后更新：09-28 14:30</p>
                 </div>
             </div>
-            <div class="header-stats">
-                <div class="header-stat">
-                    <div class="header-stat-value">4</div>
-                    <div class="header-stat-label">巡视公司</div>
-                </div>
-                <div class="header-stat">
-                    <div class="header-stat-value">87.25%</div>
-                    <div class="header-stat-label">平均汰换率</div>
-                </div>
-                <div class="header-stat">
-                    <div class="header-stat-value">23.68万</div>
-                    <div class="header-stat-label">商业差额</div>
-                </div>
+            <div class="header-status">
+                <div class="status-badge">总体健康度：良好</div>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <!-- KPI 总览 - 4列对称布局 -->
-        <div class="kpi-section" id="kpiSection">
-            <!-- KPI卡片将通过JavaScript动态生成 -->
-        </div>
-
-        <!-- 模块卡片 - 2x2对称布局 -->
-        <div class="modules-section" id="modulesSection">
-            <!-- 模块卡片将通过JavaScript动态生成 -->
-        </div>
-
-        <!-- 详细面板 -->
-        <div class="detail-panel" id="detailPanel">
-            <div class="detail-header">
-                <h2 class="detail-title" id="detailTitle">详细信息</h2>
-                <button class="close-btn" onclick="dashboard.closeDetail()">关闭</button>
+        <!-- 巡视工作进度突出展示区 -->
+        <div class="progress-highlight">
+            <div class="progress-title">2025年度巡视工作进度</div>
+            
+            <div class="progress-stats">
+                <div class="progress-stat completed">
+                    <div class="stat-label">已完成巡视</div>
+                    <div class="stat-value">4家</div>
+                    <div class="stat-detail">辽宁、山西、浙江、新疆</div>
+                </div>
+                
+                <div class="progress-stat total">
+                    <div class="stat-label">年度计划总数</div>
+                    <div class="stat-value">12家</div>
+                    <div class="stat-detail">含省公司、区域、专项</div>
+                </div>
+                
+                <div class="progress-stat percentage">
+                    <div class="stat-label">完成进度</div>
+                    <div class="stat-value">33.3%</div>
+                    <div class="stat-detail">超过Q3计划25%</div>
+                </div>
+                
+                <div class="progress-stat issues">
+                    <div class="stat-label">发现问题</div>
+                    <div class="stat-value">17项</div>
+                    <div class="stat-detail">A级3项 B级6项 C级8项</div>
+                </div>
             </div>
-            <div id="detailContent">
-                <!-- 详细内容将通过JavaScript动态生成 -->
+
+            <div class="progress-visual">
+                <h3>巡视覆盖进度可视化</h3>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill">
+                            <div class="progress-text">4/12 家单位已完成 (33.3%)</div>
+                        </div>
+                    </div>
+                    <div class="progress-labels">
+                        <div class="progress-label label-normal">进度正常</div>
+                        <div class="progress-label label-target">Q4目标8家</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 核心风险指标总览区 -->
+        <div class="risk-overview">
+            <h2 class="section-title">核心风险指标总览</h2>
+            
+            <div class="risk-cards">
+                <!-- 人员风险卡片 -->
+                <div class="risk-card high-risk">
+                    <div class="risk-header">
+                        <div class="risk-title">人员风险</div>
+                        <div class="risk-level high">高风险</div>
+                    </div>
+                    <div class="risk-value">87人</div>
+                    <div class="risk-details">
+                        总缺口 | 汰换率最高94%
+                    </div>
+                    <div class="risk-highlight">山西缺口最严重(47人)</div>
+                </div>
+
+                <!-- 财务风险卡片 -->
+                <div class="risk-card high-risk">
+                    <div class="risk-header">
+                        <div class="risk-title">财务风险</div>
+                        <div class="risk-level high">高风险</div>
+                    </div>
+                    <div class="risk-value">930万</div>
+                    <div class="risk-details">
+                        商业差额 | 近效期库存
+                    </div>
+                    <div class="risk-highlight">山西差额最大(930万)</div>
+                </div>
+
+                <!-- 合规风险卡片 -->
+                <div class="risk-card medium-risk">
+                    <div class="risk-header">
+                        <div class="risk-title">合规风险</div>
+                        <div class="risk-level medium">中风险</div>
+                    </div>
+                    <div class="risk-value">165万</div>
+                    <div class="risk-details">
+                        资金回流 | 制度缺陷
+                    </div>
+                    <div class="risk-highlight">CSO转型基本完成</div>
+                </div>
+
+                <!-- 整改进度卡片 -->
+                <div class="risk-card low-risk">
+                    <div class="risk-header">
+                        <div class="risk-title">整改进度</div>
+                        <div class="risk-level low">正常</div>
+                    </div>
+                    <div class="risk-value">68%</div>
+                    <div class="risk-details">
+                        完成率 | 17项问题
+                    </div>
+                    <div class="risk-highlight">11项已完成整改</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 问题分级与分布 -->
+        <div class="issue-classification">
+            <h2 class="section-title">问题分级与分布</h2>
+            
+            <div class="issue-levels">
+                <div class="issue-level level-a">
+                    <div class="issue-indicator"></div>
+                    <div class="issue-content">
+                        <div class="issue-header">A级预警 (3项)</div>
+                        <div class="issue-examples">商业差额930万 | 人员汰换率94% | 资金回流问题</div>
+                        <div class="issue-description">需立即处理的高风险问题，建议立即上报集团</div>
+                    </div>
+                </div>
+
+                <div class="issue-level level-b">
+                    <div class="issue-indicator"></div>
+                    <div class="issue-content">
+                        <div class="issue-header">B级监控 (6项)</div>
+                        <div class="issue-examples">近效期库存 | 人员缺口87人 | 科研项目滞后 | 制度体系</div>
+                        <div class="issue-description">重点跟踪的中等风险问题，需制定整改计划</div>
+                    </div>
+                </div>
+
+                <div class="issue-level level-c">
+                    <div class="issue-indicator"></div>
+                    <div class="issue-content">
+                        <div class="issue-header">C级关注 (8项)</div>
+                        <div class="issue-examples">会议实效性 | HCP签约率 | 培训体系 | 业务工具完善</div>
+                        <div class="issue-description">日常监控的一般性问题，持续改进提升</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 各区域风险热力图 -->
+        <div class="regional-heatmap">
+            <h2 class="section-title">各区域风险热力图</h2>
+            
+            <table class="heatmap-table">
+                <thead>
+                    <tr>
+                        <th>区域</th>
+                        <th>综合风险</th>
+                        <th>人员</th>
+                        <th>财务</th>
+                        <th>合规</th>
+                        <th>主要问题</th>
+                        <th>整改状态</th>
+                        <th>负责人</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="region-name">辽宁海悦</td>
+                        <td><span class="risk-badge risk-medium">中风险</span></td>
+                        <td><span class="risk-indicator indicator-medium"></span></td>
+                        <td><span class="risk-indicator indicator-low"></span></td>
+                        <td><span class="risk-indicator indicator-low"></span></td>
+                        <td class="issue-detail">汰换率94% | 制度建设5项<br>学术活动351场</td>
+                        <td class="status-text status-good">5/7已完成</td>
+                        <td>张总</td>
+                        <td><span class="action-link">查看详情</span></td>
+                    </tr>
+                    <tr>
+                        <td class="region-name">山西晋云</td>
+                        <td><span class="risk-badge risk-high">高风险</span></td>
+                        <td><span class="risk-indicator indicator-high"></span></td>
+                        <td><span class="risk-indicator indicator-high"></span></td>
+                        <td><span class="risk-indicator indicator-medium"></span></td>
+                        <td class="issue-detail">缺口47人 | 差额930万<br>汰换率94% | 制度问题4项</td>
+                        <td class="status-text status-danger">1/7待整改</td>
+                        <td>王总</td>
+                        <td><span class="action-link">查看详情</span></td>
+                    </tr>
+                    <tr>
+                        <td class="region-name">浙江海潮</td>
+                        <td><span class="risk-badge risk-medium">中风险</span></td>
+                        <td><span class="risk-indicator indicator-medium"></span></td>
+                        <td><span class="risk-indicator indicator-low"></span></td>
+                        <td><span class="risk-indicator indicator-low"></span></td>
+                        <td class="issue-detail">缺口34人 | 汰换率92%<br>学术活动164场</td>
+                        <td class="status-text status-warning">2/7整改中</td>
+                        <td>李总</td>
+                        <td><span class="action-link">查看详情</span></td>
+                    </tr>
+                    <tr>
+                        <td class="region-name">新疆公司</td>
+                        <td><span class="risk-badge risk-low">低风险</span></td>
+                        <td><span class="risk-indicator indicator-low"></span></td>
+                        <td><span class="risk-indicator indicator-low"></span></td>
+                        <td><span class="risk-indicator indicator-low"></span></td>
+                        <td class="issue-detail">缺口5人 | 汰换率64%<br>学术活动33场</td>
+                        <td class="status-text status-good">3/4已完成</td>
+                        <td>陈总</td>
+                        <td><span class="action-link">查看详情</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 快速操作区 -->
+        <div class="quick-actions">
+            <button class="action-btn primary">生成月度报告</button>
+            <button class="action-btn success">导出问题清单</button>
+            <button class="action-btn warning">预警通知设置</button>
+            <button class="action-btn secondary">查看历史趋势</button>
+            <button class="action-btn info">巡视计划管理</button>
+        </div>
+
+        <!-- 重要提醒 -->
+        <div class="important-reminders">
+            <div class="reminder-title">本月重要提醒</div>
+            <div class="reminder-list">
+                <div class="reminder-item">山西晋云人员缺口严重，建议立即启动紧急招聘程序</div>
+                <div class="reminder-item">商业差额930万需在本月底前处理完毕，避免影响季度结算</div>
+                <div class="reminder-item">各区域汰换率过高需关注，建议优化人员管理策略</div>
+                <div class="reminder-item">CSO转型工作基本完成，需跟进后续管理措施</div>
             </div>
         </div>
     </div>
 
-    <script>
-        class ModernInspectionDashboard {
-            constructor() {
-                this.data = {};
-                this.charts = {};
-                this.activeModule = null;
-                this.chartIdCounter = 0;
-                this.isRendering = false;
-                this.loadSampleData();
-                this.render();
+    <!-- 底部信息栏 -->
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-info">数据来源：巡视组实地检查 | 数据范围：辽宁、山西、浙江、新疆四个区域</div>
+            <div class="footer-info">技术支持：巡视组吴志远 | 联系电话：15618356048</div>
+        </div>
+    </div>
+
+    <!-- 模态框样式 -->
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
             }
-
-            loadSampleData() {
-                this.data = {
-                    "人员招聘": [
-                        {医药公司: "北京海诺康", 分线医院: "中国人民解放军空军特色医学中心", 分线管理目标: 200, 人员配置目标: 10, 在职人数: 4, 差额: -6},
-                        {医药公司: "成都海裕", 分线医院: "四川省人民医院", 分线管理目标: 401, 人员配置目标: 32, 在职人数: 16, 差额: -16},
-                        {医药公司: "广州佑康", 分线医院: "南方医科大学珠江医院", 分线管理目标: 112, 人员配置目标: 5, 在职人数: 2, 差额: -3},
-                        {医药公司: "广州佑康", 分线医院: "汕头市中心医院", 分线管理目标: 351.3, 人员配置目标: 7, 在职人数: 5, 差额: -2}
-                    ],
-                    "人员汰换": [
-                        {医药公司: "北京海诺康", 老人员人数: 85, 已淘汰人数: 24, 已换岗人数: 57, 汰换率: 95, 换岗后业绩下滑人数: 26, 业绩下滑占比: 46},
-                        {医药公司: "山东鲁圣", 老人员人数: 201, 已淘汰人数: 117, 已换岗人数: 55, 汰换率: 86, 换岗后业绩下滑人数: 19, 业绩下滑占比: 35},
-                        {医药公司: "成都海裕", 老人员人数: 110, 已淘汰人数: 65, 已换岗人数: 30, 汰换率: 86, 换岗后业绩下滑人数: 2, 业绩下滑占比: 7},
-                        {医药公司: "广州佑康", 老人员人数: 171, 已淘汰人数: 95, 已换岗人数: 56, 汰换率: 88, 换岗后业绩下滑人数: 7, 业绩下滑占比: 13}
-                    ],
-                    "薪酬管理": [
-                        {医药公司: "北京海诺康", 业务线工资占比: 10.50, 管理线工资占比: 1.86, 合计: 12.36, 人员总数: 332, 高薪酬人员: 105, 高薪酬占比: 31.6},
-                        {医药公司: "山东鲁圣", 业务线工资占比: 8.09, 管理线工资占比: 1.95, 合计: 10.04, 人员总数: 236, 高薪酬人员: 0, 高薪酬占比: 0},
-                        {医药公司: "成都海裕", 业务线工资占比: 9.0, 管理线工资占比: 0.68, 合计: 9.68, 人员总数: 347, 高薪酬人员: 44, 高薪酬占比: 12.68},
-                        {医药公司: "广州佑康", 业务线工资占比: 7.69, 管理线工资占比: 2.57, 合计: 10.26, 人员总数: 335, 高薪酬人员: 69, 高薪酬占比: 20.6}
-                    ],
-                    "商业差额": [
-                        {商业公司: "华润医药商业集团有限公司", 未处理差额: 0.2, 差额原因: "医院队伍7月品种退货"},
-                        {商业公司: "北京北医医药有限公司", 未处理差额: 9.8, 差额原因: "非公队伍舒更调价"},
-                        {商业公司: "北京同仁堂宏德", 未处理差额: 6.68, 差额原因: "医院碘海醇、柴芩等退货"},
-                        {商业公司: "国药控股四川医药股份有限公司", 未处理差额: 7.0, 差额原因: "医院退货5.06万元、破损0.32万元、价差0.76万元"}
-                    ],
-                    "科研项目进度": [
-                        {医药公司: "北京海诺康", 项目名称: "北京医学会临床科研专项基金项目", 上线日期: "2024/11/9", 结题时间: "2025/11/8", 执行进度: 20.0},
-                        {医药公司: "北京海诺康", 项目名称: "抗感染领域临床观察项目", 上线日期: "2024/9/1", 结题时间: "2025/8/31", 执行进度: 30.54},
-                        {医药公司: "山东鲁圣", 项目名称: "读书荟项目", 上线日期: "2024/6/7", 结题时间: "2025/6/6", 执行进度: 98.51},
-                        {医药公司: "山东鲁圣", 项目名称: "山东省麻醉科研基金公益项目", 上线日期: "2024/9/30", 结题时间: "2025/9/29", 执行进度: 8.04}
-                    ]
-                };
-            }
-
-            render() {
-                this.renderKPIs();
-                this.renderModules();
-            }
-
-            renderKPIs() {
-                const kpiSection = document.getElementById('kpiSection');
-                kpiSection.innerHTML = '';
-
-                const kpis = this.calculateKPIs();
-
-                kpis.forEach(kpi => {
-                    const kpiCard = document.createElement('div');
-                    kpiCard.className = `kpi-card ${kpi.type}`;
-                    kpiCard.innerHTML = `
-                        <div class="kpi-value">${kpi.value}</div>
-                        <div class="kpi-label">${kpi.label}</div>
-                    `;
-                    kpiSection.appendChild(kpiCard);
-                });
-            }
-
-            calculateKPIs() {
-                const kpis = [];
-
-                // 人员缺口
-                if (this.data['人员招聘']) {
-                    const shortage = this.data['人员招聘'].reduce((sum, row) => sum + Math.abs(row.差额 || 0), 0);
-                    kpis.push({
-                        label: '人员缺口总数',
-                        value: shortage + '人',
-                        type: shortage > 20 ? 'danger' : shortage > 10 ? 'warning' : 'success'
-                    });
-                }
-
-                // 平均汰换率
-                if (this.data['人员汰换']) {
-                    const avgTurnover = this.data['人员汰换'].reduce((sum, row) => sum + (row.汰换率 || 0), 0) / this.data['人员汰换'].length;
-                    kpis.push({
-                        label: '平均汰换率',
-                        value: avgTurnover.toFixed(1) + '%',
-                        type: avgTurnover > 90 ? 'danger' : avgTurnover > 85 ? 'warning' : 'success'
-                    });
-                }
-
-                // 商业差额
-                if (this.data['商业差额']) {
-                    const totalVariance = this.data['商业差额'].reduce((sum, row) => sum + (row.未处理差额 || 0), 0);
-                    kpis.push({
-                        label: '商业差额总额',
-                        value: totalVariance.toFixed(1) + '万元',
-                        type: totalVariance > 20 ? 'danger' : totalVariance > 10 ? 'warning' : 'success'
-                    });
-                }
-
-                // 科研项目延期
-                if (this.data['科研项目进度']) {
-                    const delayedProjects = this.data['科研项目进度'].filter(row => (row.执行进度 || 0) < 50).length;
-                    kpis.push({
-                        label: '进度滞后项目',
-                        value: delayedProjects + '个',
-                        type: delayedProjects > 2 ? 'danger' : delayedProjects > 0 ? 'warning' : 'success'
-                    });
-                }
-
-                return kpis;
-            }
-
-            renderModules() {
-                const modulesSection = document.getElementById('modulesSection');
-                modulesSection.innerHTML = '';
-
-                const modules = [
-                    {
-                        id: 'personnel',
-                        title: '人员管理',
-                        subtitle: '招聘、汰换、薪酬管理',
-                        icon: 'P',
-                        stats: this.getPersonnelStats()
-                    },
-                    {
-                        id: 'finance',
-                        title: '财务监管',
-                        subtitle: '商业差额、资金流向',
-                        icon: 'F',
-                        stats: this.getFinanceStats()
-                    },
-                    {
-                        id: 'operation',
-                        title: '运营管理',
-                        subtitle: '流程优化、合规检查',
-                        icon: 'O',
-                        stats: this.getOperationStats()
-                    },
-                    {
-                        id: 'research',
-                        title: '科研项目',
-                        subtitle: '项目进度、执行情况',
-                        icon: 'R',
-                        stats: this.getResearchStats()
-                    }
-                ];
-
-                modules.forEach(module => {
-                    const moduleCard = document.createElement('div');
-                    moduleCard.className = 'module-card';
-                    moduleCard.onclick = () => this.showDetail(module.id);
-
-                    const statsHtml = module.stats.map(stat => `
-                        <div class="module-stat">
-                            <div class="module-stat-value">${stat.value}</div>
-                            <div class="module-stat-label">${stat.label}</div>
-                        </div>
-                    `).join('');
-
-                    moduleCard.innerHTML = `
-                        <div class="module-header">
-                            <div>
-                                <div class="module-title">${module.title}</div>
-                                <div class="module-subtitle">${module.subtitle}</div>
-                            </div>
-                            <div class="module-icon">${module.icon}</div>
-                        </div>
-                        <div class="module-stats">
-                            ${statsHtml}
-                        </div>
-                    `;
-
-                    modulesSection.appendChild(moduleCard);
-                });
-            }
-
-            getPersonnelStats() {
-                return [
-                    { label: '人员缺口', value: '27人' },
-                    { label: '平均汰换率', value: '87.3%' },
-                    { label: '高薪酬占比', value: '16.2%' },
-                    { label: '巡视公司', value: '4家' }
-                ];
-            }
-
-            getFinanceStats() {
-                return [
-                    { label: '差额总额', value: '23.7万' },
-                    { label: '涉及公司', value: '4家' },
-                    { label: '最大差额', value: '9.8万' },
-                    { label: '处理率', value: '0%' }
-                ];
-            }
-
-            getOperationStats() {
-                return [
-                    { label: '制度建设', value: '85%' },
-                    { label: '流程优化', value: '92%' },
-                    { label: '合规检查', value: '88%' },
-                    { label: '问题数量', value: '32个' }
-                ];
-            }
-
-            getResearchStats() {
-                return [
-                    { label: '总项目数', value: '4个' },
-                    { label: '平均进度', value: '39.3%' },
-                    { label: '滞后项目', value: '3个' },
-                    { label: '完成项目', value: '1个' }
-                ];
-            }
-
-            showDetail(moduleId) {
-                if (this.isRendering) return;
-
-                this.activeModule = moduleId;
-                const detailPanel = document.getElementById('detailPanel');
-                const detailTitle = document.getElementById('detailTitle');
-                const detailContent = document.getElementById('detailContent');
-
-                // 清理所有现有图表
-                this.clearAllCharts();
-
-                // 更新活动状态
-                document.querySelectorAll('.module-card').forEach(card => {
-                    card.classList.remove('active');
-                });
-                event.currentTarget.classList.add('active');
-
-                // 设置标题
-                const titles = {
-                    personnel: '人员管理详情',
-                    finance: '财务监管详情',
-                    operation: '运营管理详情',
-                    research: '科研项目详情'
-                };
-                detailTitle.textContent = titles[moduleId];
-
-                // 渲染详细内容
-                detailContent.innerHTML = '';
-                this.renderDetailContent(moduleId, detailContent);
-
-                // 显示面板
-                detailPanel.classList.add('active');
-            }
-
-            renderDetailContent(moduleId, container) {
-                if (this.isRendering) return;
-                this.isRendering = true;
-
-                try {
-                    switch(moduleId) {
-                        case 'personnel':
-                            this.renderPersonnelDetail(container);
-                            break;
-                        case 'finance':
-                            this.renderFinanceDetail(container);
-                            break;
-                        case 'operation':
-                            this.renderOperationDetail(container);
-                            break;
-                        case 'research':
-                            this.renderResearchDetail(container);
-                            break;
-                    }
-                } finally {
-                    this.isRendering = false;
-                }
-            }
-
-            renderPersonnelDetail(container) {
-                const chartsDiv = document.createElement('div');
-                chartsDiv.className = 'charts-grid';
-
-                // 第一行：3个小图表
-                this.createChart(chartsDiv, '人员配置饼图', this.data['人员招聘'], '医药公司', '人员配置目标', 'pie', false, 'chart-small');
-                this.createChart(chartsDiv, '缺口分析条形图', this.data['人员招聘'], '医药公司', '差额', 'bar', true, 'chart-small');
-                this.createGaugeChart(chartsDiv, '平均汰换率', 87.25, 'chart-small');
-
-                // 第二行：雷达图 + 堆叠图
-                this.createRadarChart(chartsDiv, '综合评估雷达图', this.data['人员汰换'], 'chart-medium');
-                this.createStackedChart(chartsDiv, '薪酬结构堆叠图', this.data['薪酬管理'], 'chart-medium');
-
-                // 第三行：散点图 + 环形进度条
-                this.createScatterChart(chartsDiv, '汰换率与业绩散点图', this.data['人员汰换'], 'chart-medium');
-                this.createProgressRings(chartsDiv, '关键指标进度', 'chart-medium');
-
-                // 第四行：全宽面积图
-                this.createAreaChart(chartsDiv, '人员变化趋势面积图', 'chart-full');
-
-                container.appendChild(chartsDiv);
-
-                // 数据表
-                ['人员招聘', '人员汰换', '薪酬管理'].forEach(tableName => {
-                    if (this.data[tableName]) {
-                        this.createTable(container, tableName, this.data[tableName]);
-                    }
-                });
-            }
-
-            renderFinanceDetail(container) {
-                const chartsDiv = document.createElement('div');
-                chartsDiv.className = 'charts-grid';
-
-                // 对称布局：2+2+2 配置
-                this.createChart(chartsDiv, '差额分布饼图', this.data['商业差额'], '商业公司', '未处理差额', 'pie', false, 'chart-small');
-                this.createChart(chartsDiv, '差额原因分析', this.data['商业差额'], '商业公司', '未处理差额', 'doughnut', false, 'chart-small');
-                this.createGaugeChart(chartsDiv, '处理进度', 15, 'chart-small');
-
-                this.createWaterfallChart(chartsDiv, '差额瀑布图', 'chart-medium');
-                this.createPolarChart(chartsDiv, '风险评估极坐标图', 'chart-medium');
-
-                this.createBubbleChart(chartsDiv, '影响因素气泡图', 'chart-full');
-
-                container.appendChild(chartsDiv);
-                this.createTable(container, '商业差额明细', this.data['商业差额']);
-            }
-
-            renderOperationDetail(container) {
-                const operationData = [
-                    { 类别: '制度建设', 完成度: 85, 问题数: 12, 优先级: '高', 风险级别: 2 },
-                    { 类别: '会议管理', 完成度: 78, 问题数: 8, 优先级: '中', 风险级别: 1 },
-                    { 类别: '流程优化', 完成度: 92, 问题数: 5, 优先级: '高', 风险级别: 1 }
-                ];
-
-                const chartsDiv = document.createElement('div');
-                chartsDiv.className = 'charts-grid';
-
-                // 3个仪表盘
-                operationData.forEach(item => {
-                    this.createGaugeChart(chartsDiv, `${item.类别}`, item.完成度, 'chart-small');
-                });
-
-                // 运营雷达图
-                this.createOperationRadarChart(chartsDiv, '运营全景雷达图', operationData, 'chart-full');
-
-                // 树状图
-                this.createTreeMapChart(chartsDiv, '运营层级树状图', 'chart-full');
-
-                container.appendChild(chartsDiv);
-                this.createTable(container, '运营管理指标', operationData);
-            }
-
-            renderResearchDetail(container) {
-                const chartsDiv = document.createElement('div');
-                chartsDiv.className = 'charts-grid';
-
-                // 项目分析图表
-                this.createChart(chartsDiv, '项目进度条形图', this.data['科研项目进度'], '项目名称', '执行进度', 'bar', false, 'chart-small');
-                this.createChart(chartsDiv, '进度分布饼图', this.groupProjectsByProgress(), '进度区间', '项目数', 'pie', false, 'chart-small');
-                this.createChart(chartsDiv, '公司项目甜甜圈', this.groupProjectsByCompany(), '医药公司', '项目数', 'doughnut', false, 'chart-small');
-
-                container.appendChild(chartsDiv);
-                this.createTable(container, '科研项目详情', this.data['科研项目进度']);
-            }
-
-            createChart(container, title, data, labelKey, valueKey, type, isNegative = false, sizeClass = 'chart-small') {
-                const chartId = `chart_${this.chartIdCounter++}`;
-                const chartContainer = document.createElement('div');
-                chartContainer.className = `chart-container ${sizeClass}`;
-                chartContainer.setAttribute('data-chart-id', chartId);
-
-                const chartTitle = document.createElement('div');
-                chartTitle.className = 'chart-title';
-                chartTitle.textContent = title;
-
-                const canvas = document.createElement('canvas');
-                canvas.id = `canvas_${chartId}`;
-                // 设置固定尺寸
-                canvas.width = 320;
-                canvas.height = 240;
-                canvas.style.width = '320px';
-                canvas.style.height = '240px';
-
-                chartContainer.appendChild(chartTitle);
-                chartContainer.appendChild(canvas);
-                container.appendChild(chartContainer);
-
-                const ctx = canvas.getContext('2d');
-
-                const colors = [
-                    '#667eea', '#764ba2', '#f093fb', '#f5576c',
-                    '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
-                    '#ffecd2', '#fcb69f', '#a8edea', '#fed6e3'
-                ];
-
-                const chartData = {
-                    labels: data.map(row => this.truncateLabel(row[labelKey])),
-                    datasets: [{
-                        label: valueKey,
-                        data: data.map(row => {
-                            let value = Number(row[valueKey]) || 0;
-                            return isNegative ? Math.abs(value) : value;
-                        }),
-                        backgroundColor: type === 'pie' || type === 'doughnut' ?
-                            colors.slice(0, data.length) :
-                            (isNegative ? '#ff6b6b' : '#667eea'),
-                        borderColor: '#fff',
-                        borderWidth: 2,
-                        borderRadius: type === 'bar' ? 8 : 0
-                    }]
-                };
-
-                this.charts[chartId] = new Chart(ctx, {
-                    type: type,
-                    data: chartData,
-                    options: {
-                        responsive: false,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                display: type === 'pie' || type === 'doughnut',
-                                position: 'bottom',
-                                labels: {
-                                    padding: 10,
-                                    usePointStyle: true,
-                                    font: { size: 10 }
-                                }
-                            }
-                        },
-                        scales: type !== 'pie' && type !== 'doughnut' ? {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: '#f1f5f9' },
-                                ticks: {
-                                    font: { size: 10 },
-                                    callback: function(value) {
-                                        return isNegative && value > 0 ? '-' + value : value;
-                                    }
-                                }
-                            },
-                            x: {
-                                grid: { display: false },
-                                ticks: { font: { size: 10 } }
-                            }
-                        } : {}
-                    }
-                });
-            }
-
-            createGaugeChart(container, title, value, sizeClass = 'chart-small') {
-                const chartId = `gauge_${this.chartIdCounter++}`;
-                const chartContainer = document.createElement('div');
-                chartContainer.className = `chart-container ${sizeClass}`;
-                chartContainer.setAttribute('data-chart-id', chartId);
-
-                const chartTitle = document.createElement('div');
-                chartTitle.className = 'chart-title';
-                chartTitle.textContent = title;
-
-                const canvas = document.createElement('canvas');
-                canvas.id = `canvas_${chartId}`;
-                // 设置固定尺寸
-                canvas.width = 280;
-                canvas.height = 200;
-                canvas.style.width = '280px';
-                canvas.style.height = '200px';
-
-                chartContainer.appendChild(chartTitle);
-                chartContainer.appendChild(canvas);
-                container.appendChild(chartContainer);
-
-                const ctx = canvas.getContext('2d');
-
-                const chartData = {
-                    datasets: [{
-                        data: [value, 100 - value],
-                        backgroundColor: [
-                            value > 80 ? '#66bb6a' : value > 60 ? '#ffa726' : '#ff6b6b',
-                            '#e2e8f0'
-                        ],
-                        borderWidth: 0,
-                        cutout: '70%'
-                    }]
-                };
-
-                this.charts[chartId] = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: chartData,
-                    options: {
-                        responsive: false,
-                        maintainAspectRatio: true,
-                        rotation: -90,
-                        circumference: 180,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { enabled: false }
-                        }
-                    },
-                    plugins: [{
-                        afterRender: function(chart) {
-                            const ctx = chart.ctx;
-                            const centerX = chart.width / 2;
-                            const centerY = chart.height / 2;
-
-                            ctx.save();
-                            ctx.font = 'bold 18px Arial';
-                            ctx.fillStyle = '#2d3748';
-                            ctx.textAlign = 'center';
-                            ctx.fillText(`${value}%`, centerX, centerY + 10);
-                            ctx.restore();
-                        }
-                    }]
-                });
-            }
-
-            createProgressRings(container, title, sizeClass = 'chart-medium') {
-                const chartContainer = document.createElement('div');
-                chartContainer.className = `chart-container ${sizeClass}`;
-                chartContainer.setAttribute('data-chart-id', `progress_${this.chartIdCounter++}`);
-
-                const chartTitle = document.createElement('div');
-                chartTitle.className = 'chart-title';
-                chartTitle.textContent = title;
-
-                const ringsContainer = document.createElement('div');
-                ringsContainer.style.display = 'flex';
-                ringsContainer.style.justifyContent = 'space-around';
-                ringsContainer.style.alignItems = 'center';
-                ringsContainer.style.padding = '20px';
-
-                const indicators = [
-                    { name: '招聘', value: 65, color: '#667eea' },
-                    { name: '培训', value: 82, color: '#43e97b' },
-                    { name: '考核', value: 78, color: '#ffa726' },
-                    { name: '留存', value: 91, color: '#66bb6a' }
-                ];
-
-                indicators.forEach(indicator => {
-                    const ringDiv = document.createElement('div');
-                    ringDiv.className = 'progress-ring';
-
-                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    svg.setAttribute('width', '80');
-                    svg.setAttribute('height', '80');
-
-                    const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                    circle1.setAttribute('cx', '40');
-                    circle1.setAttribute('cy', '40');
-                    circle1.setAttribute('r', '30');
-                    circle1.setAttribute('fill', 'none');
-                    circle1.setAttribute('stroke', '#e2e8f0');
-                    circle1.setAttribute('stroke-width', '6');
-
-                    const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                    // === FIX: Use setAttribute for SVG elements ===
-                    circle2.setAttribute('class', 'progress-ring-circle');
-                    circle2.setAttribute('cx', '40');
-                    circle2.setAttribute('cy', '40');
-                    circle2.setAttribute('r', '30');
-                    circle2.setAttribute('fill', 'none');
-                    circle2.setAttribute('stroke', indicator.color);
-                    circle2.setAttribute('stroke-width', '6');
-                    circle2.setAttribute('stroke-linecap', 'round');
-                    const circumference = 2 * Math.PI * 30;
-                    const offset = circumference - (indicator.value / 100) * circumference;
-                    circle2.setAttribute('stroke-dasharray', circumference);
-                    circle2.setAttribute('stroke-dashoffset', offset);
-
-                    svg.appendChild(circle1);
-                    svg.appendChild(circle2);
-
-                    const text = document.createElement('div');
-                    text.className = 'progress-ring-text';
-                    text.textContent = `${indicator.value}%`;
-
-                    const label = document.createElement('div');
-                    label.style.textAlign = 'center';
-                    label.style.marginTop = '5px';
-                    label.style.fontSize = '12px';
-                    label.style.color = '#718096';
-                    label.textContent = indicator.name;
-
-                    ringDiv.appendChild(svg);
-                    ringDiv.appendChild(text);
-                    ringDiv.appendChild(label);
-                    ringsContainer.appendChild(ringDiv);
-                });
-
-                chartContainer.appendChild(chartTitle);
-                chartContainer.appendChild(ringsContainer);
-                container.appendChild(chartContainer);
-            }
-
-            // 其他图表创建方法的简化版本
-            createRadarChart(container, title, data, sizeClass) {
-                this.createChart(container, title, data, '医药公司', '汰换率', 'radar', false, sizeClass);
-            }
-
-            createStackedChart(container, title, data, sizeClass) {
-                const chartId = `stacked_${this.chartIdCounter++}`;
-                const chartContainer = document.createElement('div');
-                chartContainer.className = `chart-container ${sizeClass}`;
-                chartContainer.setAttribute('data-chart-id', chartId);
-
-                const chartTitle = document.createElement('div');
-                chartTitle.className = 'chart-title';
-                chartTitle.textContent = title;
-
-                const canvas = document.createElement('canvas');
-                canvas.id = `canvas_${chartId}`;
-                // 设置固定尺寸
-                canvas.width = 380;
-                canvas.height = 260;
-                canvas.style.width = '380px';
-                canvas.style.height = '260px';
-
-                chartContainer.appendChild(chartTitle);
-                chartContainer.appendChild(canvas);
-                container.appendChild(chartContainer);
-
-                const ctx = canvas.getContext('2d');
-
-                const chartData = {
-                    labels: data.map(row => this.truncateLabel(row.医药公司)),
-                    datasets: [
-                        {
-                            label: '业务线工资占比',
-                            data: data.map(row => row.业务线工资占比 || 0),
-                            backgroundColor: '#667eea',
-                        },
-                        {
-                            label: '管理线工资占比',
-                            data: data.map(row => row.管理线工资占比 || 0),
-                            backgroundColor: '#764ba2',
-                        }
-                    ]
-                };
-
-                this.charts[chartId] = new Chart(ctx, {
-                    type: 'bar',
-                    data: chartData,
-                    options: {
-                        responsive: false,
-                        maintainAspectRatio: true,
-                        scales: {
-                            x: { stacked: true, grid: { display: false } },
-                            y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } }
-                        },
-                        plugins: { legend: { position: 'bottom' } }
-                    }
-                });
-            }
-
-            createScatterChart(container, title, data, sizeClass) {
-                this.createChart(container, title + ' (散点)', data, '医药公司', '汰换率', 'scatter', false, sizeClass);
-            }
-
-            createAreaChart(container, title, sizeClass) {
-                const chartId = `area_${this.chartIdCounter++}`;
-                const chartContainer = document.createElement('div');
-                chartContainer.className = `chart-container ${sizeClass}`;
-                chartContainer.setAttribute('data-chart-id', chartId);
-
-                const chartTitle = document.createElement('div');
-                chartTitle.className = 'chart-title';
-                chartTitle.textContent = title;
-
-                const canvas = document.createElement('canvas');
-                canvas.id = `canvas_${chartId}`;
-                // 根据尺寸类设置不同的固定尺寸
-                if (sizeClass === 'chart-full') {
-                    canvas.width = 800;
-                    canvas.height = 300;
-                    canvas.style.width = '800px';
-                    canvas.style.height = '300px';
-                } else {
-                    canvas.width = 380;
-                    canvas.height = 260;
-                    canvas.style.width = '380px';
-                    canvas.style.height = '260px';
-                }
-
-                chartContainer.appendChild(chartTitle);
-                chartContainer.appendChild(canvas);
-                container.appendChild(chartContainer);
-
-                const ctx = canvas.getContext('2d');
-
-                const monthlyData = [
-                    { month: '1月', personnel: 320 },
-                    { month: '2月', personnel: 315 },
-                    { month: '3月', personnel: 298 },
-                    { month: '4月', personnel: 285 },
-                    { month: '5月', personnel: 289 },
-                    { month: '6月', personnel: 294 },
-                    { month: '7月', personnel: 301 }
-                ];
-
-                const chartData = {
-                    labels: monthlyData.map(d => d.month),
-                    datasets: [{
-                        label: '在职人数',
-                        data: monthlyData.map(d => d.personnel),
-                        fill: true,
-                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                        borderColor: '#667eea',
-                        borderWidth: 3,
-                        tension: 0.4
-                    }]
-                };
-
-                this.charts[chartId] = new Chart(ctx, {
-                    type: 'line',
-                    data: chartData,
-                    options: {
-                        responsive: false,
-                        maintainAspectRatio: true,
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-                            x: { grid: { display: false } }
-                        },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            }
-
-            createWaterfallChart(container, title, sizeClass) {
-                const chartContainer = document.createElement('div');
-                chartContainer.className = `chart-container ${sizeClass}`;
-
-                const chartTitle = document.createElement('div');
-                chartTitle.className = 'chart-title';
-                chartTitle.textContent = title;
-
-                const content = document.createElement('div');
-                content.style.padding = '20px';
-                content.style.textAlign = 'center';
-                content.innerHTML = '<div style="color: #718096;">瀑布图展示差额变化流程</div>';
-
-                chartContainer.appendChild(chartTitle);
-                chartContainer.appendChild(content);
-                container.appendChild(chartContainer);
-            }
-
-            createPolarChart(container, title, sizeClass) {
-                this.createChart(container, title, this.data['商业差额'], '商业公司', '未处理差额', 'polarArea', false, sizeClass);
-            }
-
-            createBubbleChart(container, title, sizeClass) {
-                const chartId = `bubble_${this.chartIdCounter++}`;
-                const chartContainer = document.createElement('div');
-                chartContainer.className = `chart-container ${sizeClass}`;
-                chartContainer.setAttribute('data-chart-id', chartId);
-
-                const chartTitle = document.createElement('div');
-                chartTitle.className = 'chart-title';
-                chartTitle.textContent = title;
-
-                const canvas = document.createElement('canvas');
-                canvas.id = `canvas_${chartId}`;
-                // 根据尺寸类设置不同的固定尺寸
-                if (sizeClass === 'chart-full') {
-                    canvas.width = 800;
-                    canvas.height = 320;
-                    canvas.style.width = '800px';
-                    canvas.style.height = '320px';
-                } else {
-                    canvas.width = 380;
-                    canvas.height = 260;
-                    canvas.style.width = '380px';
-                    canvas.style.height = '260px';
-                }
-
-                chartContainer.appendChild(chartTitle);
-                chartContainer.appendChild(canvas);
-                container.appendChild(chartContainer);
-
-                const ctx = canvas.getContext('2d');
-
-                const bubbleData = this.data['商业差额'].map((item, index) => ({
-                    x: Math.random() * 100,
-                    y: Math.random() * 100,
-                    r: (item.未处理差额 || 1) * 3
-                }));
-
-                const chartData = {
-                    datasets: [{
-                        label: '影响因素分析',
-                        data: bubbleData,
-                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
-                        borderColor: '#667eea'
-                    }]
-                };
-
-                this.charts[chartId] = new Chart(ctx, {
-                    type: 'bubble',
-                    data: chartData,
-                    options: {
-                        responsive: false,
-                        maintainAspectRatio: true,
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            }
-
-            createOperationRadarChart(container, title, data, sizeClass) {
-                this.createChart(container, title, data, '类别', '完成度', 'radar', false, sizeClass);
-            }
-
-            createTreeMapChart(container, title, sizeClass) {
-                const chartContainer = document.createElement('div');
-                chartContainer.className = `chart-container ${sizeClass}`;
-
-                const chartTitle = document.createElement('div');
-                chartTitle.className = 'chart-title';
-                chartTitle.textContent = title;
-
-                const content = document.createElement('div');
-                content.style.padding = '20px';
-                content.style.textAlign = 'center';
-                content.innerHTML = '<div style="color: #718096;">运营管理层级结构展示</div>';
-
-                chartContainer.appendChild(chartTitle);
-                chartContainer.appendChild(content);
-                container.appendChild(chartContainer);
-            }
-
-            groupProjectsByProgress() {
-                const groups = [
-                    { 进度区间: '0-25%', 项目数: 0 },
-                    { 进度区间: '26-50%', 项目数: 0 },
-                    { 进度区间: '51-75%', 项目数: 0 },
-                    { 进度区间: '76-100%', 项目数: 0 }
-                ];
-
-                this.data['科研项目进度'].forEach(project => {
-                    const progress = project.执行进度 || 0;
-                    if (progress <= 25) groups[0].项目数++;
-                    else if (progress <= 50) groups[1].项目数++;
-                    else if (progress <= 75) groups[2].项目数++;
-                    else groups[3].项目数++;
-                });
-
-                return groups;
-            }
-
-            groupProjectsByCompany() {
-                const companies = {};
-                this.data['科研项目进度'].forEach(project => {
-                    companies[project.医药公司] = (companies[project.医药公司] || 0) + 1;
-                });
-
-                return Object.entries(companies).map(([company, count]) => ({
-                    医药公司: company,
-                    项目数: count
-                }));
-            }
-
-            createTable(container, tableName, data) {
-                if (!data || data.length === 0) return;
-
-                const tableContainer = document.createElement('div');
-                tableContainer.className = 'data-table-container';
-
-                const tableHeader = document.createElement('div');
-                tableHeader.className = 'table-header';
-                tableHeader.innerHTML = `<div class="table-title">${tableName}</div>`;
-
-                const table = document.createElement('table');
-                table.className = 'data-table';
-
-                // 表头
-                const thead = document.createElement('thead');
-                const headerRow = document.createElement('tr');
-                Object.keys(data[0]).forEach(key => {
-                    const th = document.createElement('th');
-                    th.textContent = key;
-                    headerRow.appendChild(th);
-                });
-                thead.appendChild(headerRow);
-                table.appendChild(thead);
-
-                // 表体
-                const tbody = document.createElement('tbody');
-                data.forEach((row, index) => {
-                    const tr = document.createElement('tr');
-                    Object.entries(row).forEach(([key, value]) => {
-                        const td = document.createElement('td');
-                        if (typeof value === 'number') {
-                            td.className = 'number';
-                            if (key.includes('差额') || key.includes('缺口')) {
-                                td.className += value < 0 ? ' negative' : ' positive';
-                            }
-                        }
-                        td.textContent = value || '';
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
-                });
-                table.appendChild(tbody);
-
-                tableContainer.appendChild(tableHeader);
-                tableContainer.appendChild(table);
-                container.appendChild(tableContainer);
-            }
-
-            truncateLabel(label) {
-                if (!label) return '';
-                return String(label).length > 12 ? String(label).substring(0, 12) + '...' : String(label);
-            }
-
-            clearAllCharts() {
-                // 销毁所有Chart.js实例
-                Object.values(this.charts).forEach(chart => {
-                    if (chart && typeof chart.destroy === 'function') {
-                        chart.destroy();
-                    }
-                });
-                this.charts = {};
-                this.chartIdCounter = 0;
-            }
-
-            closeDetail() {
-                const detailPanel = document.getElementById('detailPanel');
-                detailPanel.classList.remove('active');
-
-                document.querySelectorAll('.module-card').forEach(card => {
-                    card.classList.remove('active');
-                });
-
-                // 清理所有图表
-                this.clearAllCharts();
-
-                // 清空详情内容
-                const detailContent = document.getElementById('detailContent');
-                if (detailContent) {
-                    detailContent.innerHTML = '';
-                }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        // 初始化看板
-        const dashboard = new ModernInspectionDashboard();
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .file-upload {
+            border: 2px dashed #e2e8f0;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+        }
+
+        .file-upload.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            z-index: 1001;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .gantt-chart {
+            margin-top: 20px;
+        }
+
+        .gantt-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .gantt-label {
+            width: 200px;
+            font-weight: 600;
+        }
+
+        .gantt-bar {
+            flex: 1;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            position: relative;
+            margin: 0 20px;
+        }
+
+        .gantt-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .gantt-date {
+            width: 100px;
+            text-align: right;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+
+    <script>
+        // 全局数据
+        const dashboardData = {
+            // 巡视计划数据
+            inspectionPlans: [
+                { id: 1, name: '辽宁海悦巡视', startDate: '2025-09-01', endDate: '2025-09-15', progress: 100, status: '已完成', responsible: '张总' },
+                { id: 2, name: '山西晋云巡视', startDate: '2025-09-16', endDate: '2025-09-30', progress: 85, status: '进行中', responsible: '王总' },
+                { id: 3, name: '浙江海潮巡视', startDate: '2025-10-01', endDate: '2025-10-15', progress: 0, status: '未开始', responsible: '李总' },
+                { id: 4, name: '新疆公司巡视', startDate: '2025-10-16', endDate: '2025-10-30', progress: 0, status: '未开始', responsible: '陈总' }
+            ],
+            // 预警设置
+            alertSettings: {
+                financialThreshold: 500, // 万元
+                personnelTurnoverThreshold: 90, // 百分比
+                complianceThreshold: 100 // 万元
+            },
+            // 问题清单数据
+            issueList: [
+                { id: 1, level: 'A', region: '山西晋云', issue: '商业差额930万', status: '待处理', responsible: '王总', deadline: '2025-09-30' },
+                { id: 2, level: 'A', region: '山西晋云', issue: '人员缺口47人', status: '处理中', responsible: '王总', deadline: '2025-10-15' },
+                { id: 3, level: 'A', region: '辽宁海悦', issue: '汰换率94%', status: '待处理', responsible: '张总', deadline: '2025-10-01' },
+                { id: 4, level: 'B', region: '浙江海潮', issue: '人员缺口34人', status: '处理中', responsible: '李总', deadline: '2025-10-20' },
+                { id: 5, level: 'B', region: '辽宁海悦', issue: '制度建设滞后', status: '待处理', responsible: '张总', deadline: '2025-10-10' },
+                { id: 6, level: 'C', region: '新疆公司', issue: '培训体系不完善', status: '待处理', responsible: '陈总', deadline: '2025-11-01' }
+            ]
+        };
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#667eea'};"></div>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 生成月度报告
+        function generateMonthlyReport() {
+            const modal = createModal('生成月度报告', `
+                <div class="form-group">
+                    <label class="form-label">报告月份</label>
+                    <select class="form-control" id="reportMonth">
+                        <option value="2025-09">2025年9月</option>
+                        <option value="2025-08">2025年8月</option>
+                        <option value="2025-07">2025年7月</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">报告类型</label>
+                    <select class="form-control" id="reportType">
+                        <option value="summary">综合报告</option>
+                        <option value="risk">风险专项报告</option>
+                        <option value="personnel">人员专项报告</option>
+                        <option value="finance">财务专项报告</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">包含内容</label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <label><input type="checkbox" checked> 巡视进度概览</label>
+                        <label><input type="checkbox" checked> 风险指标分析</label>
+                        <label><input type="checkbox" checked> 问题分级统计</label>
+                        <label><input type="checkbox" checked> 区域对比分析</label>
+                        <label><input type="checkbox" checked> 整改建议</label>
+                        <label><input type="checkbox" checked> 下月计划</label>
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button class="btn btn-primary" onclick="downloadReport()">生成PDF报告</button>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        // 导出问题清单
+        function exportIssueList() {
+            const modal = createModal('导出问题清单', `
+                <div class="form-group">
+                    <label class="form-label">导出范围</label>
+                    <select class="form-control" id="exportScope">
+                        <option value="all">全部问题</option>
+                        <option value="A">A级问题</option>
+                        <option value="B">B级问题</option>
+                        <option value="C">C级问题</option>
+                        <option value="pending">待处理问题</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">导出格式</label>
+                    <select class="form-control" id="exportFormat">
+                        <option value="excel">Excel文件</option>
+                        <option value="csv">CSV文件</option>
+                        <option value="pdf">PDF文件</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">包含字段</label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <label><input type="checkbox" checked> 问题等级</label>
+                        <label><input type="checkbox" checked> 所属区域</label>
+                        <label><input type="checkbox" checked> 问题描述</label>
+                        <label><input type="checkbox" checked> 处理状态</label>
+                        <label><input type="checkbox" checked> 负责人</label>
+                        <label><input type="checkbox" checked> 截止日期</label>
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button class="btn btn-success" onclick="downloadIssueList()">导出清单</button>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        // 预警通知设置
+        function setupAlertNotification() {
+            const modal = createModal('预警通知设置', `
+                <div class="form-group">
+                    <label class="form-label">财务风险预警阈值（万元）</label>
+                    <input type="number" class="form-control" id="financialThreshold" value="${dashboardData.alertSettings.financialThreshold}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">人员汰换率预警阈值（%）</label>
+                    <input type="number" class="form-control" id="personnelThreshold" value="${dashboardData.alertSettings.personnelTurnoverThreshold}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">合规风险预警阈值（万元）</label>
+                    <input type="number" class="form-control" id="complianceThreshold" value="${dashboardData.alertSettings.complianceThreshold}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">通知方式</label>
+                    <div>
+                        <label><input type="checkbox" checked> 系统内通知</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">通知对象</label>
+                    <div>
+                        <label><input type="checkbox" checked> 当前页面用户</label>
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button class="btn btn-primary" onclick="saveAlertSettings()">保存设置</button>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        // 巡视计划管理
+        function manageInspectionPlan() {
+            const modal = createModal('巡视计划管理', `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>巡视计划列表</h3>
+                    <button class="btn btn-primary" onclick="addNewPlan()">新增计划</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>计划名称</th>
+                            <th>开始日期</th>
+                            <th>结束日期</th>
+                            <th>进度</th>
+                            <th>状态</th>
+                            <th>负责人</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planTableBody">
+                        ${dashboardData.inspectionPlans.map(plan => `
+                            <tr>
+                                <td>${plan.name}</td>
+                                <td>${plan.startDate}</td>
+                                <td>${plan.endDate}</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="width: 100px; height: 8px; background: #e2e8f0; border-radius: 4px;">
+                                            <div style="width: ${plan.progress}%; height: 100%; background: #28a745; border-radius: 4px;"></div>
+                                        </div>
+                                        <span>${plan.progress}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; color: white; background: ${plan.status === '已完成' ? '#28a745' : plan.status === '进行中' ? '#fd7e14' : '#6c757d'};">
+                                        ${plan.status}
+                                    </span>
+                                </td>
+                                <td>${plan.responsible}</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 0.8rem; margin: 2px;" onclick="editPlan(${plan.id})">编辑</button>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 0.8rem; margin: 2px; background: #dc3545;" onclick="deletePlan(${plan.id})">删除</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="gantt-chart">
+                    <h4>甘特图视图</h4>
+                    ${dashboardData.inspectionPlans.map(plan => `
+                        <div class="gantt-item">
+                            <div class="gantt-label">${plan.name}</div>
+                            <div class="gantt-bar">
+                                <div class="gantt-progress" style="width: ${plan.progress}%;"></div>
+                            </div>
+                            <div class="gantt-date">${plan.startDate} - ${plan.endDate}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        // 数据导入功能
+        function importData() {
+            const modal = createModal('数据导入', `
+                <div class="form-group">
+                    <label class="form-label">选择数据模板</label>
+                    <select class="form-control" id="dataTemplate">
+                        <option value="personnel">人员数据模板</option>
+                        <option value="finance">财务数据模板</option>
+                        <option value="compliance">合规数据模板</option>
+                        <option value="inspection">巡视数据模板</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">下载模板</label>
+                    <button class="btn btn-primary" onclick="downloadTemplate()">下载Excel模板</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">上传数据文件</label>
+                    <div class="file-upload" id="fileUpload" onclick="document.getElementById('fileInput').click()">
+                        <div style="font-size: 1.2rem; margin-bottom: 10px;">📁</div>
+                        <div>点击选择文件或拖拽文件到此处</div>
+                        <div style="font-size: 0.9rem; color: #6c757d; margin-top: 5px;">支持 .xlsx, .xls, .csv 格式</div>
+                    </div>
+                    <input type="file" id="fileInput" style="display: none;" accept=".xlsx,.xls,.csv" onchange="handleFileUpload(event)">
+                </div>
+                <div class="form-group" id="previewSection" style="display: none;">
+                    <label class="form-label">数据预览</label>
+                    <div id="dataPreview" style="max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;"></div>
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button class="btn btn-success" id="importBtn" onclick="importDataFile()" style="display: none;">导入数据</button>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        // 创建模态框
+        function createModal(title, content) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title">${title}</div>
+                        <span class="close" onclick="closeModal()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            return modal;
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => modal.remove());
+        }
+
+        // 下载报告
+        function downloadReport() {
+            showNotification('正在生成PDF报告，请稍候...', 'info');
+            setTimeout(() => {
+                showNotification('PDF报告生成成功！', 'success');
+                closeModal();
+            }, 2000);
+        }
+
+        // 下载问题清单
+        function downloadIssueList() {
+            showNotification('正在导出问题清单...', 'info');
+            setTimeout(() => {
+                showNotification('问题清单导出成功！', 'success');
+                closeModal();
+            }, 1500);
+        }
+
+        // 保存预警设置
+        function saveAlertSettings() {
+            dashboardData.alertSettings.financialThreshold = document.getElementById('financialThreshold').value;
+            dashboardData.alertSettings.personnelTurnoverThreshold = document.getElementById('personnelThreshold').value;
+            dashboardData.alertSettings.complianceThreshold = document.getElementById('complianceThreshold').value;
+            showNotification('预警设置保存成功！', 'success');
+            closeModal();
+        }
+
+        // 新增计划
+        function addNewPlan() {
+            const modal = createModal('新增巡视计划', `
+                <div class="form-group">
+                    <label class="form-label">计划名称</label>
+                    <input type="text" class="form-control" id="planName" placeholder="请输入计划名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">开始日期</label>
+                    <input type="date" class="form-control" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">结束日期</label>
+                    <input type="date" class="form-control" id="endDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">负责人</label>
+                    <select class="form-control" id="responsible">
+                        <option value="张总">张总</option>
+                        <option value="王总">王总</option>
+                        <option value="李总">李总</option>
+                        <option value="陈总">陈总</option>
+                    </select>
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button class="btn btn-primary" onclick="saveNewPlan()">保存</button>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        // 保存新计划
+        function saveNewPlan() {
+            const newPlan = {
+                id: dashboardData.inspectionPlans.length + 1,
+                name: document.getElementById('planName').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                progress: 0,
+                status: '未开始',
+                responsible: document.getElementById('responsible').value
+            };
+            dashboardData.inspectionPlans.push(newPlan);
+            showNotification('计划添加成功！', 'success');
+            closeModal();
+        }
+
+        // 编辑计划
+        function editPlan(id) {
+            const plan = dashboardData.inspectionPlans.find(p => p.id === id);
+            const modal = createModal('编辑巡视计划', `
+                <div class="form-group">
+                    <label class="form-label">计划名称</label>
+                    <input type="text" class="form-control" id="editPlanName" value="${plan.name}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">开始日期</label>
+                    <input type="date" class="form-control" id="editStartDate" value="${plan.startDate}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">结束日期</label>
+                    <input type="date" class="form-control" id="editEndDate" value="${plan.endDate}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">进度（%）</label>
+                    <input type="number" class="form-control" id="editProgress" value="${plan.progress}" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">状态</label>
+                    <select class="form-control" id="editStatus">
+                        <option value="未开始" ${plan.status === '未开始' ? 'selected' : ''}>未开始</option>
+                        <option value="进行中" ${plan.status === '进行中' ? 'selected' : ''}>进行中</option>
+                        <option value="已完成" ${plan.status === '已完成' ? 'selected' : ''}>已完成</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">负责人</label>
+                    <select class="form-control" id="editResponsible">
+                        <option value="张总" ${plan.responsible === '张总' ? 'selected' : ''}>张总</option>
+                        <option value="王总" ${plan.responsible === '王总' ? 'selected' : ''}>王总</option>
+                        <option value="李总" ${plan.responsible === '李总' ? 'selected' : ''}>李总</option>
+                        <option value="陈总" ${plan.responsible === '陈总' ? 'selected' : ''}>陈总</option>
+                    </select>
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button class="btn btn-primary" onclick="saveEditPlan(${id})">保存</button>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        // 保存编辑计划
+        function saveEditPlan(id) {
+            const plan = dashboardData.inspectionPlans.find(p => p.id === id);
+            plan.name = document.getElementById('editPlanName').value;
+            plan.startDate = document.getElementById('editStartDate').value;
+            plan.endDate = document.getElementById('editEndDate').value;
+            plan.progress = parseInt(document.getElementById('editProgress').value);
+            plan.status = document.getElementById('editStatus').value;
+            plan.responsible = document.getElementById('editResponsible').value;
+            showNotification('计划更新成功！', 'success');
+            closeModal();
+        }
+
+        // 删除计划
+        function deletePlan(id) {
+            if (confirm('确定要删除这个计划吗？')) {
+                dashboardData.inspectionPlans = dashboardData.inspectionPlans.filter(p => p.id !== id);
+                showNotification('计划删除成功！', 'success');
+                closeModal();
+            }
+        }
+
+        // 下载模板
+        function downloadTemplate() {
+            showNotification('正在下载模板文件...', 'info');
+            setTimeout(() => {
+                showNotification('模板下载成功！', 'success');
+            }, 1000);
+        }
+
+        // 处理文件上传
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                showNotification('文件上传成功，正在解析...', 'info');
+                setTimeout(() => {
+                    document.getElementById('previewSection').style.display = 'block';
+                    document.getElementById('importBtn').style.display = 'inline-block';
+                    document.getElementById('dataPreview').innerHTML = `
+                        <div style="color: #28a745; font-weight: 600; margin-bottom: 10px;">✓ 文件解析成功</div>
+                        <div>文件名: ${file.name}</div>
+                        <div>文件大小: ${(file.size / 1024).toFixed(2)} KB</div>
+                        <div>预计导入: 25 条数据记录</div>
+                    `;
+                }, 1500);
+            }
+        }
+
+        // 导入数据文件
+        function importDataFile() {
+            showNotification('正在导入数据...', 'info');
+            setTimeout(() => {
+                showNotification('数据导入成功！共导入 25 条记录', 'success');
+                closeModal();
+            }, 2000);
+        }
+
+        // 简单的交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加卡片悬停效果
+            const cards = document.querySelectorAll('.risk-card, .progress-stat');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 15px 35px rgba(0,0,0,0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
+                });
+            });
+
+            // 快速操作按钮点击效果
+            const actionBtns = document.querySelectorAll('.action-btn');
+            actionBtns.forEach((btn, index) => {
+                btn.addEventListener('click', function() {
+                    // 简单的点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                    
+                    // 根据按钮索引调用对应功能
+                    const functions = [
+                        generateMonthlyReport,
+                        exportIssueList,
+                        setupAlertNotification,
+                        () => showNotification('历史趋势功能开发中...', 'info'),
+                        manageInspectionPlan
+                    ];
+                    
+                    if (functions[index]) {
+                        functions[index]();
+                    }
+                });
+            });
+
+            // 表格行点击效果
+            const tableRows = document.querySelectorAll('.heatmap-table tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    // 移除其他行的选中状态
+                    tableRows.forEach(r => r.classList.remove('selected'));
+                    // 添加当前行的选中状态
+                    this.classList.add('selected');
+                });
+            });
+
+            // 动态更新时间
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleString('zh-CN', {
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const headerText = document.querySelector('.header-text p');
+                if (headerText) {
+                    headerText.textContent = `2025年9月 | 经营总公司巡视组 | 最后更新：${timeString}`;
+                }
+            }
+
+            // 每分钟更新一次时间
+            setInterval(updateTime, 60000);
+
+            // 添加数据导入按钮到头部
+            const headerStatus = document.querySelector('.header-status');
+            const importBtn = document.createElement('button');
+            importBtn.className = 'btn btn-primary';
+            importBtn.style.cssText = 'padding: 8px 16px; border: none; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-weight: bold; cursor: pointer;';
+            importBtn.textContent = '数据导入';
+            importBtn.onclick = importData;
+            headerStatus.appendChild(importBtn);
+        });
     </script>
 </body>
 </html>
