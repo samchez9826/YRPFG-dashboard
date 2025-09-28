@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扬子江药业巡视数据看板系统</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .header-text h1 {
+            font-size: 1.8rem;
+            color: #2d3748;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .header-text p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-stat {
+            text-align: center;
+            padding: 10px 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        .header-stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .header-stat-label {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 2px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .kpi-card.danger::before {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a52);
+        }
+
+        .kpi-card.warning::before {
+            background: linear-gradient(90deg, #ffa726, #fb8c00);
+        }
+
+        .kpi-card.success::before {
+            background: linear-gradient(90deg, #66bb6a, #43a047);
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .kpi-card.danger .kpi-value {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .kpi-card.warning .kpi-value {
+            background: linear-gradient(135deg, #ffa726, #fb8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .kpi-card.success .kpi-value {
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .kpi-label {
+            font-size: 1rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .modules-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .module-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .module-card.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .module-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .module-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .module-card:not(.active) .module-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .module-card.active .module-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .module-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .module-stat {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 12px;
+        }
+
+        .module-card.active .module-stat {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .module-stat-value {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .module-stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .detail-panel {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: none;
+            margin-top: 30px;
+        }
+
+        .detail-panel.active {
+            display: block;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f7fafc;
+        }
+
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .close-btn {
+            background: #e2e8f0;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #cbd5e0;
+        }
+
+        /* 对称网格布局 */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 不同尺寸的图表容器 */
+        .chart-small {
+            grid-column: span 2;
+            min-height: 320px;
+            max-height: 320px;
+        }
+
+        .chart-medium {
+            grid-column: span 3;
+            min-height: 340px;
+            max-height: 340px;
+        }
+
+        .chart-large {
+            grid-column: span 4;
+            min-height: 370px;
+            max-height: 370px;
+        }
+
+        .chart-full {
+            grid-column: span 6;
+            min-height: 400px;
+            max-height: 400px;
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        .data-table-container {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 12px;
+            font-weight: 600;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .data-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+        .data-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .data-table .number {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .data-table .negative {
+            color: #e53e3e;
+        }
+
+        .data-table .positive {
+            color: #38a169;
+        }
+
+        .progress-ring {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .progress-ring-circle {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .chart-small {
+                grid-column: span 2;
+            }
+            .chart-medium {
+                grid-column: span 2;
+            }
+            .chart-large {
+                grid-column: span 4;
+            }
+            .chart-full {
+                grid-column: span 4;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .header-stats {
+                justify-content: center;
+            }
+
+            .kpi-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modules-section {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-small,
+            .chart-medium,
+            .chart-large,
+            .chart-full {
+                grid-column: span 1;
+            }
+
+            .module-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="company-logo">扬</div>
+                <div class="header-text">
+                    <h1>扬子江药业集团巡视数据看板</h1>
+                    <p>2025年8月巡视工作数据分析系统</p>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <div class="header-stat-value">4</div>
+                    <div class="header-stat-label">巡视公司</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value">87.25%</div>
+                    <div class="header-stat-label">平均汰换率</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value">23.68万</div>
+                    <div class="header-stat-label">商业差额</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- KPI 总览 - 4列对称布局 -->
+        <div class="kpi-section" id="kpiSection">
+            <!-- KPI卡片将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 模块卡片 - 2x2对称布局 -->
+        <div class="modules-section" id="modulesSection">
+            <!-- 模块卡片将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 详细面板 -->
+        <div class="detail-panel" id="detailPanel">
+            <div class="detail-header">
+                <h2 class="detail-title" id="detailTitle">详细信息</h2>
+                <button class="close-btn" onclick="dashboard.closeDetail()">关闭</button>
+            </div>
+            <div id="detailContent">
+                <!-- 详细内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ModernInspectionDashboard {
+            constructor() {
+                this.data = {};
+                this.charts = {};
+                this.activeModule = null;
+                this.chartIdCounter = 0;
+                this.isRendering = false;
+                this.loadSampleData();
+                this.render();
+            }
+
+            loadSampleData() {
+                this.data = {
+                    "人员招聘": [
+                        {医药公司: "北京海诺康", 分线医院: "中国人民解放军空军特色医学中心", 分线管理目标: 200, 人员配置目标: 10, 在职人数: 4, 差额: -6},
+                        {医药公司: "成都海裕", 分线医院: "四川省人民医院", 分线管理目标: 401, 人员配置目标: 32, 在职人数: 16, 差额: -16},
+                        {医药公司: "广州佑康", 分线医院: "南方医科大学珠江医院", 分线管理目标: 112, 人员配置目标: 5, 在职人数: 2, 差额: -3},
+                        {医药公司: "广州佑康", 分线医院: "汕头市中心医院", 分线管理目标: 351.3, 人员配置目标: 7, 在职人数: 5, 差额: -2}
+                    ],
+                    "人员汰换": [
+                        {医药公司: "北京海诺康", 老人员人数: 85, 已淘汰人数: 24, 已换岗人数: 57, 汰换率: 95, 换岗后业绩下滑人数: 26, 业绩下滑占比: 46},
+                        {医药公司: "山东鲁圣", 老人员人数: 201, 已淘汰人数: 117, 已换岗人数: 55, 汰换率: 86, 换岗后业绩下滑人数: 19, 业绩下滑占比: 35},
+                        {医药公司: "成都海裕", 老人员人数: 110, 已淘汰人数: 65, 已换岗人数: 30, 汰换率: 86, 换岗后业绩下滑人数: 2, 业绩下滑占比: 7},
+                        {医药公司: "广州佑康", 老人员人数: 171, 已淘汰人数: 95, 已换岗人数: 56, 汰换率: 88, 换岗后业绩下滑人数: 7, 业绩下滑占比: 13}
+                    ],
+                    "薪酬管理": [
+                        {医药公司: "北京海诺康", 业务线工资占比: 10.50, 管理线工资占比: 1.86, 合计: 12.36, 人员总数: 332, 高薪酬人员: 105, 高薪酬占比: 31.6},
+                        {医药公司: "山东鲁圣", 业务线工资占比: 8.09, 管理线工资占比: 1.95, 合计: 10.04, 人员总数: 236, 高薪酬人员: 0, 高薪酬占比: 0},
+                        {医药公司: "成都海裕", 业务线工资占比: 9.0, 管理线工资占比: 0.68, 合计: 9.68, 人员总数: 347, 高薪酬人员: 44, 高薪酬占比: 12.68},
+                        {医药公司: "广州佑康", 业务线工资占比: 7.69, 管理线工资占比: 2.57, 合计: 10.26, 人员总数: 335, 高薪酬人员: 69, 高薪酬占比: 20.6}
+                    ],
+                    "商业差额": [
+                        {商业公司: "华润医药商业集团有限公司", 未处理差额: 0.2, 差额原因: "医院队伍7月品种退货"},
+                        {商业公司: "北京北医医药有限公司", 未处理差额: 9.8, 差额原因: "非公队伍舒更调价"},
+                        {商业公司: "北京同仁堂宏德", 未处理差额: 6.68, 差额原因: "医院碘海醇、柴芩等退货"},
+                        {商业公司: "国药控股四川医药股份有限公司", 未处理差额: 7.0, 差额原因: "医院退货5.06万元、破损0.32万元、价差0.76万元"}
+                    ],
+                    "科研项目进度": [
+                        {医药公司: "北京海诺康", 项目名称: "北京医学会临床科研专项基金项目", 上线日期: "2024/11/9", 结题时间: "2025/11/8", 执行进度: 20.0},
+                        {医药公司: "北京海诺康", 项目名称: "抗感染领域临床观察项目", 上线日期: "2024/9/1", 结题时间: "2025/8/31", 执行进度: 30.54},
+                        {医药公司: "山东鲁圣", 项目名称: "读书荟项目", 上线日期: "2024/6/7", 结题时间: "2025/6/6", 执行进度: 98.51},
+                        {医药公司: "山东鲁圣", 项目名称: "山东省麻醉科研基金公益项目", 上线日期: "2024/9/30", 结题时间: "2025/9/29", 执行进度: 8.04}
+                    ]
+                };
+            }
+
+            render() {
+                this.renderKPIs();
+                this.renderModules();
+            }
+
+            renderKPIs() {
+                const kpiSection = document.getElementById('kpiSection');
+                kpiSection.innerHTML = '';
+
+                const kpis = this.calculateKPIs();
+
+                kpis.forEach(kpi => {
+                    const kpiCard = document.createElement('div');
+                    kpiCard.className = `kpi-card ${kpi.type}`;
+                    kpiCard.innerHTML = `
+                        <div class="kpi-value">${kpi.value}</div>
+                        <div class="kpi-label">${kpi.label}</div>
+                    `;
+                    kpiSection.appendChild(kpiCard);
+                });
+            }
+
+            calculateKPIs() {
+                const kpis = [];
+
+                // 人员缺口
+                if (this.data['人员招聘']) {
+                    const shortage = this.data['人员招聘'].reduce((sum, row) => sum + Math.abs(row.差额 || 0), 0);
+                    kpis.push({
+                        label: '人员缺口总数',
+                        value: shortage + '人',
+                        type: shortage > 20 ? 'danger' : shortage > 10 ? 'warning' : 'success'
+                    });
+                }
+
+                // 平均汰换率
+                if (this.data['人员汰换']) {
+                    const avgTurnover = this.data['人员汰换'].reduce((sum, row) => sum + (row.汰换率 || 0), 0) / this.data['人员汰换'].length;
+                    kpis.push({
+                        label: '平均汰换率',
+                        value: avgTurnover.toFixed(1) + '%',
+                        type: avgTurnover > 90 ? 'danger' : avgTurnover > 85 ? 'warning' : 'success'
+                    });
+                }
+
+                // 商业差额
+                if (this.data['商业差额']) {
+                    const totalVariance = this.data['商业差额'].reduce((sum, row) => sum + (row.未处理差额 || 0), 0);
+                    kpis.push({
+                        label: '商业差额总额',
+                        value: totalVariance.toFixed(1) + '万元',
+                        type: totalVariance > 20 ? 'danger' : totalVariance > 10 ? 'warning' : 'success'
+                    });
+                }
+
+                // 科研项目延期
+                if (this.data['科研项目进度']) {
+                    const delayedProjects = this.data['科研项目进度'].filter(row => (row.执行进度 || 0) < 50).length;
+                    kpis.push({
+                        label: '进度滞后项目',
+                        value: delayedProjects + '个',
+                        type: delayedProjects > 2 ? 'danger' : delayedProjects > 0 ? 'warning' : 'success'
+                    });
+                }
+
+                return kpis;
+            }
+
+            renderModules() {
+                const modulesSection = document.getElementById('modulesSection');
+                modulesSection.innerHTML = '';
+
+                const modules = [
+                    {
+                        id: 'personnel',
+                        title: '人员管理',
+                        subtitle: '招聘、汰换、薪酬管理',
+                        icon: 'P',
+                        stats: this.getPersonnelStats()
+                    },
+                    {
+                        id: 'finance',
+                        title: '财务监管',
+                        subtitle: '商业差额、资金流向',
+                        icon: 'F',
+                        stats: this.getFinanceStats()
+                    },
+                    {
+                        id: 'operation',
+                        title: '运营管理',
+                        subtitle: '流程优化、合规检查',
+                        icon: 'O',
+                        stats: this.getOperationStats()
+                    },
+                    {
+                        id: 'research',
+                        title: '科研项目',
+                        subtitle: '项目进度、执行情况',
+                        icon: 'R',
+                        stats: this.getResearchStats()
+                    }
+                ];
+
+                modules.forEach(module => {
+                    const moduleCard = document.createElement('div');
+                    moduleCard.className = 'module-card';
+                    moduleCard.onclick = () => this.showDetail(module.id);
+
+                    const statsHtml = module.stats.map(stat => `
+                        <div class="module-stat">
+                            <div class="module-stat-value">${stat.value}</div>
+                            <div class="module-stat-label">${stat.label}</div>
+                        </div>
+                    `).join('');
+
+                    moduleCard.innerHTML = `
+                        <div class="module-header">
+                            <div>
+                                <div class="module-title">${module.title}</div>
+                                <div class="module-subtitle">${module.subtitle}</div>
+                            </div>
+                            <div class="module-icon">${module.icon}</div>
+                        </div>
+                        <div class="module-stats">
+                            ${statsHtml}
+                        </div>
+                    `;
+
+                    modulesSection.appendChild(moduleCard);
+                });
+            }
+
+            getPersonnelStats() {
+                return [
+                    { label: '人员缺口', value: '27人' },
+                    { label: '平均汰换率', value: '87.3%' },
+                    { label: '高薪酬占比', value: '16.2%' },
+                    { label: '巡视公司', value: '4家' }
+                ];
+            }
+
+            getFinanceStats() {
+                return [
+                    { label: '差额总额', value: '23.7万' },
+                    { label: '涉及公司', value: '4家' },
+                    { label: '最大差额', value: '9.8万' },
+                    { label: '处理率', value: '0%' }
+                ];
+            }
+
+            getOperationStats() {
+                return [
+                    { label: '制度建设', value: '85%' },
+                    { label: '流程优化', value: '92%' },
+                    { label: '合规检查', value: '88%' },
+                    { label: '问题数量', value: '32个' }
+                ];
+            }
+
+            getResearchStats() {
+                return [
+                    { label: '总项目数', value: '4个' },
+                    { label: '平均进度', value: '39.3%' },
+                    { label: '滞后项目', value: '3个' },
+                    { label: '完成项目', value: '1个' }
+                ];
+            }
+
+            showDetail(moduleId) {
+                if (this.isRendering) return;
+
+                this.activeModule = moduleId;
+                const detailPanel = document.getElementById('detailPanel');
+                const detailTitle = document.getElementById('detailTitle');
+                const detailContent = document.getElementById('detailContent');
+
+                // 清理所有现有图表
+                this.clearAllCharts();
+
+                // 更新活动状态
+                document.querySelectorAll('.module-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                event.currentTarget.classList.add('active');
+
+                // 设置标题
+                const titles = {
+                    personnel: '人员管理详情',
+                    finance: '财务监管详情',
+                    operation: '运营管理详情',
+                    research: '科研项目详情'
+                };
+                detailTitle.textContent = titles[moduleId];
+
+                // 渲染详细内容
+                detailContent.innerHTML = '';
+                this.renderDetailContent(moduleId, detailContent);
+
+                // 显示面板
+                detailPanel.classList.add('active');
+            }
+
+            renderDetailContent(moduleId, container) {
+                if (this.isRendering) return;
+                this.isRendering = true;
+
+                try {
+                    switch(moduleId) {
+                        case 'personnel':
+                            this.renderPersonnelDetail(container);
+                            break;
+                        case 'finance':
+                            this.renderFinanceDetail(container);
+                            break;
+                        case 'operation':
+                            this.renderOperationDetail(container);
+                            break;
+                        case 'research':
+                            this.renderResearchDetail(container);
+                            break;
+                    }
+                } finally {
+                    this.isRendering = false;
+                }
+            }
+
+            renderPersonnelDetail(container) {
+                const chartsDiv = document.createElement('div');
+                chartsDiv.className = 'charts-grid';
+
+                // 第一行：3个小图表
+                this.createChart(chartsDiv, '人员配置饼图', this.data['人员招聘'], '医药公司', '人员配置目标', 'pie', false, 'chart-small');
+                this.createChart(chartsDiv, '缺口分析条形图', this.data['人员招聘'], '医药公司', '差额', 'bar', true, 'chart-small');
+                this.createGaugeChart(chartsDiv, '平均汰换率', 87.25, 'chart-small');
+
+                // 第二行：雷达图 + 堆叠图
+                this.createRadarChart(chartsDiv, '综合评估雷达图', this.data['人员汰换'], 'chart-medium');
+                this.createStackedChart(chartsDiv, '薪酬结构堆叠图', this.data['薪酬管理'], 'chart-medium');
+
+                // 第三行：散点图 + 环形进度条
+                this.createScatterChart(chartsDiv, '汰换率与业绩散点图', this.data['人员汰换'], 'chart-medium');
+                this.createProgressRings(chartsDiv, '关键指标进度', 'chart-medium');
+
+                // 第四行：全宽面积图
+                this.createAreaChart(chartsDiv, '人员变化趋势面积图', 'chart-full');
+
+                container.appendChild(chartsDiv);
+
+                // 数据表
+                ['人员招聘', '人员汰换', '薪酬管理'].forEach(tableName => {
+                    if (this.data[tableName]) {
+                        this.createTable(container, tableName, this.data[tableName]);
+                    }
+                });
+            }
+
+            renderFinanceDetail(container) {
+                const chartsDiv = document.createElement('div');
+                chartsDiv.className = 'charts-grid';
+
+                // 对称布局：2+2+2 配置
+                this.createChart(chartsDiv, '差额分布饼图', this.data['商业差额'], '商业公司', '未处理差额', 'pie', false, 'chart-small');
+                this.createChart(chartsDiv, '差额原因分析', this.data['商业差额'], '商业公司', '未处理差额', 'doughnut', false, 'chart-small');
+                this.createGaugeChart(chartsDiv, '处理进度', 15, 'chart-small');
+
+                this.createWaterfallChart(chartsDiv, '差额瀑布图', 'chart-medium');
+                this.createPolarChart(chartsDiv, '风险评估极坐标图', 'chart-medium');
+
+                this.createBubbleChart(chartsDiv, '影响因素气泡图', 'chart-full');
+
+                container.appendChild(chartsDiv);
+                this.createTable(container, '商业差额明细', this.data['商业差额']);
+            }
+
+            renderOperationDetail(container) {
+                const operationData = [
+                    { 类别: '制度建设', 完成度: 85, 问题数: 12, 优先级: '高', 风险级别: 2 },
+                    { 类别: '会议管理', 完成度: 78, 问题数: 8, 优先级: '中', 风险级别: 1 },
+                    { 类别: '流程优化', 完成度: 92, 问题数: 5, 优先级: '高', 风险级别: 1 }
+                ];
+
+                const chartsDiv = document.createElement('div');
+                chartsDiv.className = 'charts-grid';
+
+                // 3个仪表盘
+                operationData.forEach(item => {
+                    this.createGaugeChart(chartsDiv, `${item.类别}`, item.完成度, 'chart-small');
+                });
+
+                // 运营雷达图
+                this.createOperationRadarChart(chartsDiv, '运营全景雷达图', operationData, 'chart-full');
+
+                // 树状图
+                this.createTreeMapChart(chartsDiv, '运营层级树状图', 'chart-full');
+
+                container.appendChild(chartsDiv);
+                this.createTable(container, '运营管理指标', operationData);
+            }
+
+            renderResearchDetail(container) {
+                const chartsDiv = document.createElement('div');
+                chartsDiv.className = 'charts-grid';
+
+                // 项目分析图表
+                this.createChart(chartsDiv, '项目进度条形图', this.data['科研项目进度'], '项目名称', '执行进度', 'bar', false, 'chart-small');
+                this.createChart(chartsDiv, '进度分布饼图', this.groupProjectsByProgress(), '进度区间', '项目数', 'pie', false, 'chart-small');
+                this.createChart(chartsDiv, '公司项目甜甜圈', this.groupProjectsByCompany(), '医药公司', '项目数', 'doughnut', false, 'chart-small');
+
+                container.appendChild(chartsDiv);
+                this.createTable(container, '科研项目详情', this.data['科研项目进度']);
+            }
+
+            createChart(container, title, data, labelKey, valueKey, type, isNegative = false, sizeClass = 'chart-small') {
+                const chartId = `chart_${this.chartIdCounter++}`;
+                const chartContainer = document.createElement('div');
+                chartContainer.className = `chart-container ${sizeClass}`;
+                chartContainer.setAttribute('data-chart-id', chartId);
+
+                const chartTitle = document.createElement('div');
+                chartTitle.className = 'chart-title';
+                chartTitle.textContent = title;
+
+                const canvas = document.createElement('canvas');
+                canvas.id = `canvas_${chartId}`;
+                // 设置固定尺寸
+                canvas.width = 320;
+                canvas.height = 240;
+                canvas.style.width = '320px';
+                canvas.style.height = '240px';
+
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(canvas);
+                container.appendChild(chartContainer);
+
+                const ctx = canvas.getContext('2d');
+
+                const colors = [
+                    '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                    '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                    '#ffecd2', '#fcb69f', '#a8edea', '#fed6e3'
+                ];
+
+                const chartData = {
+                    labels: data.map(row => this.truncateLabel(row[labelKey])),
+                    datasets: [{
+                        label: valueKey,
+                        data: data.map(row => {
+                            let value = Number(row[valueKey]) || 0;
+                            return isNegative ? Math.abs(value) : value;
+                        }),
+                        backgroundColor: type === 'pie' || type === 'doughnut' ?
+                            colors.slice(0, data.length) :
+                            (isNegative ? '#ff6b6b' : '#667eea'),
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        borderRadius: type === 'bar' ? 8 : 0
+                    }]
+                };
+
+                this.charts[chartId] = new Chart(ctx, {
+                    type: type,
+                    data: chartData,
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: type === 'pie' || type === 'doughnut',
+                                position: 'bottom',
+                                labels: {
+                                    padding: 10,
+                                    usePointStyle: true,
+                                    font: { size: 10 }
+                                }
+                            }
+                        },
+                        scales: type !== 'pie' && type !== 'doughnut' ? {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#f1f5f9' },
+                                ticks: {
+                                    font: { size: 10 },
+                                    callback: function(value) {
+                                        return isNegative && value > 0 ? '-' + value : value;
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 10 } }
+                            }
+                        } : {}
+                    }
+                });
+            }
+
+            createGaugeChart(container, title, value, sizeClass = 'chart-small') {
+                const chartId = `gauge_${this.chartIdCounter++}`;
+                const chartContainer = document.createElement('div');
+                chartContainer.className = `chart-container ${sizeClass}`;
+                chartContainer.setAttribute('data-chart-id', chartId);
+
+                const chartTitle = document.createElement('div');
+                chartTitle.className = 'chart-title';
+                chartTitle.textContent = title;
+
+                const canvas = document.createElement('canvas');
+                canvas.id = `canvas_${chartId}`;
+                // 设置固定尺寸
+                canvas.width = 280;
+                canvas.height = 200;
+                canvas.style.width = '280px';
+                canvas.style.height = '200px';
+
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(canvas);
+                container.appendChild(chartContainer);
+
+                const ctx = canvas.getContext('2d');
+
+                const chartData = {
+                    datasets: [{
+                        data: [value, 100 - value],
+                        backgroundColor: [
+                            value > 80 ? '#66bb6a' : value > 60 ? '#ffa726' : '#ff6b6b',
+                            '#e2e8f0'
+                        ],
+                        borderWidth: 0,
+                        cutout: '70%'
+                    }]
+                };
+
+                this.charts[chartId] = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: chartData,
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: true,
+                        rotation: -90,
+                        circumference: 180,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false }
+                        }
+                    },
+                    plugins: [{
+                        afterRender: function(chart) {
+                            const ctx = chart.ctx;
+                            const centerX = chart.width / 2;
+                            const centerY = chart.height / 2;
+
+                            ctx.save();
+                            ctx.font = 'bold 18px Arial';
+                            ctx.fillStyle = '#2d3748';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(`${value}%`, centerX, centerY + 10);
+                            ctx.restore();
+                        }
+                    }]
+                });
+            }
+
+            createProgressRings(container, title, sizeClass = 'chart-medium') {
+                const chartContainer = document.createElement('div');
+                chartContainer.className = `chart-container ${sizeClass}`;
+                chartContainer.setAttribute('data-chart-id', `progress_${this.chartIdCounter++}`);
+
+                const chartTitle = document.createElement('div');
+                chartTitle.className = 'chart-title';
+                chartTitle.textContent = title;
+
+                const ringsContainer = document.createElement('div');
+                ringsContainer.style.display = 'flex';
+                ringsContainer.style.justifyContent = 'space-around';
+                ringsContainer.style.alignItems = 'center';
+                ringsContainer.style.padding = '20px';
+
+                const indicators = [
+                    { name: '招聘', value: 65, color: '#667eea' },
+                    { name: '培训', value: 82, color: '#43e97b' },
+                    { name: '考核', value: 78, color: '#ffa726' },
+                    { name: '留存', value: 91, color: '#66bb6a' }
+                ];
+
+                indicators.forEach(indicator => {
+                    const ringDiv = document.createElement('div');
+                    ringDiv.className = 'progress-ring';
+
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.setAttribute('width', '80');
+                    svg.setAttribute('height', '80');
+
+                    const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle1.setAttribute('cx', '40');
+                    circle1.setAttribute('cy', '40');
+                    circle1.setAttribute('r', '30');
+                    circle1.setAttribute('fill', 'none');
+                    circle1.setAttribute('stroke', '#e2e8f0');
+                    circle1.setAttribute('stroke-width', '6');
+
+                    const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    // === FIX: Use setAttribute for SVG elements ===
+                    circle2.setAttribute('class', 'progress-ring-circle');
+                    circle2.setAttribute('cx', '40');
+                    circle2.setAttribute('cy', '40');
+                    circle2.setAttribute('r', '30');
+                    circle2.setAttribute('fill', 'none');
+                    circle2.setAttribute('stroke', indicator.color);
+                    circle2.setAttribute('stroke-width', '6');
+                    circle2.setAttribute('stroke-linecap', 'round');
+                    const circumference = 2 * Math.PI * 30;
+                    const offset = circumference - (indicator.value / 100) * circumference;
+                    circle2.setAttribute('stroke-dasharray', circumference);
+                    circle2.setAttribute('stroke-dashoffset', offset);
+
+                    svg.appendChild(circle1);
+                    svg.appendChild(circle2);
+
+                    const text = document.createElement('div');
+                    text.className = 'progress-ring-text';
+                    text.textContent = `${indicator.value}%`;
+
+                    const label = document.createElement('div');
+                    label.style.textAlign = 'center';
+                    label.style.marginTop = '5px';
+                    label.style.fontSize = '12px';
+                    label.style.color = '#718096';
+                    label.textContent = indicator.name;
+
+                    ringDiv.appendChild(svg);
+                    ringDiv.appendChild(text);
+                    ringDiv.appendChild(label);
+                    ringsContainer.appendChild(ringDiv);
+                });
+
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(ringsContainer);
+                container.appendChild(chartContainer);
+            }
+
+            // 其他图表创建方法的简化版本
+            createRadarChart(container, title, data, sizeClass) {
+                this.createChart(container, title, data, '医药公司', '汰换率', 'radar', false, sizeClass);
+            }
+
+            createStackedChart(container, title, data, sizeClass) {
+                const chartId = `stacked_${this.chartIdCounter++}`;
+                const chartContainer = document.createElement('div');
+                chartContainer.className = `chart-container ${sizeClass}`;
+                chartContainer.setAttribute('data-chart-id', chartId);
+
+                const chartTitle = document.createElement('div');
+                chartTitle.className = 'chart-title';
+                chartTitle.textContent = title;
+
+                const canvas = document.createElement('canvas');
+                canvas.id = `canvas_${chartId}`;
+                // 设置固定尺寸
+                canvas.width = 380;
+                canvas.height = 260;
+                canvas.style.width = '380px';
+                canvas.style.height = '260px';
+
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(canvas);
+                container.appendChild(chartContainer);
+
+                const ctx = canvas.getContext('2d');
+
+                const chartData = {
+                    labels: data.map(row => this.truncateLabel(row.医药公司)),
+                    datasets: [
+                        {
+                            label: '业务线工资占比',
+                            data: data.map(row => row.业务线工资占比 || 0),
+                            backgroundColor: '#667eea',
+                        },
+                        {
+                            label: '管理线工资占比',
+                            data: data.map(row => row.管理线工资占比 || 0),
+                            backgroundColor: '#764ba2',
+                        }
+                    ]
+                };
+
+                this.charts[chartId] = new Chart(ctx, {
+                    type: 'bar',
+                    data: chartData,
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: true,
+                        scales: {
+                            x: { stacked: true, grid: { display: false } },
+                            y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } }
+                        },
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            createScatterChart(container, title, data, sizeClass) {
+                this.createChart(container, title + ' (散点)', data, '医药公司', '汰换率', 'scatter', false, sizeClass);
+            }
+
+            createAreaChart(container, title, sizeClass) {
+                const chartId = `area_${this.chartIdCounter++}`;
+                const chartContainer = document.createElement('div');
+                chartContainer.className = `chart-container ${sizeClass}`;
+                chartContainer.setAttribute('data-chart-id', chartId);
+
+                const chartTitle = document.createElement('div');
+                chartTitle.className = 'chart-title';
+                chartTitle.textContent = title;
+
+                const canvas = document.createElement('canvas');
+                canvas.id = `canvas_${chartId}`;
+                // 根据尺寸类设置不同的固定尺寸
+                if (sizeClass === 'chart-full') {
+                    canvas.width = 800;
+                    canvas.height = 300;
+                    canvas.style.width = '800px';
+                    canvas.style.height = '300px';
+                } else {
+                    canvas.width = 380;
+                    canvas.height = 260;
+                    canvas.style.width = '380px';
+                    canvas.style.height = '260px';
+                }
+
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(canvas);
+                container.appendChild(chartContainer);
+
+                const ctx = canvas.getContext('2d');
+
+                const monthlyData = [
+                    { month: '1月', personnel: 320 },
+                    { month: '2月', personnel: 315 },
+                    { month: '3月', personnel: 298 },
+                    { month: '4月', personnel: 285 },
+                    { month: '5月', personnel: 289 },
+                    { month: '6月', personnel: 294 },
+                    { month: '7月', personnel: 301 }
+                ];
+
+                const chartData = {
+                    labels: monthlyData.map(d => d.month),
+                    datasets: [{
+                        label: '在职人数',
+                        data: monthlyData.map(d => d.personnel),
+                        fill: true,
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: '#667eea',
+                        borderWidth: 3,
+                        tension: 0.4
+                    }]
+                };
+
+                this.charts[chartId] = new Chart(ctx, {
+                    type: 'line',
+                    data: chartData,
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            createWaterfallChart(container, title, sizeClass) {
+                const chartContainer = document.createElement('div');
+                chartContainer.className = `chart-container ${sizeClass}`;
+
+                const chartTitle = document.createElement('div');
+                chartTitle.className = 'chart-title';
+                chartTitle.textContent = title;
+
+                const content = document.createElement('div');
+                content.style.padding = '20px';
+                content.style.textAlign = 'center';
+                content.innerHTML = '<div style="color: #718096;">瀑布图展示差额变化流程</div>';
+
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(content);
+                container.appendChild(chartContainer);
+            }
+
+            createPolarChart(container, title, sizeClass) {
+                this.createChart(container, title, this.data['商业差额'], '商业公司', '未处理差额', 'polarArea', false, sizeClass);
+            }
+
+            createBubbleChart(container, title, sizeClass) {
+                const chartId = `bubble_${this.chartIdCounter++}`;
+                const chartContainer = document.createElement('div');
+                chartContainer.className = `chart-container ${sizeClass}`;
+                chartContainer.setAttribute('data-chart-id', chartId);
+
+                const chartTitle = document.createElement('div');
+                chartTitle.className = 'chart-title';
+                chartTitle.textContent = title;
+
+                const canvas = document.createElement('canvas');
+                canvas.id = `canvas_${chartId}`;
+                // 根据尺寸类设置不同的固定尺寸
+                if (sizeClass === 'chart-full') {
+                    canvas.width = 800;
+                    canvas.height = 320;
+                    canvas.style.width = '800px';
+                    canvas.style.height = '320px';
+                } else {
+                    canvas.width = 380;
+                    canvas.height = 260;
+                    canvas.style.width = '380px';
+                    canvas.style.height = '260px';
+                }
+
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(canvas);
+                container.appendChild(chartContainer);
+
+                const ctx = canvas.getContext('2d');
+
+                const bubbleData = this.data['商业差额'].map((item, index) => ({
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    r: (item.未处理差额 || 1) * 3
+                }));
+
+                const chartData = {
+                    datasets: [{
+                        label: '影响因素分析',
+                        data: bubbleData,
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: '#667eea'
+                    }]
+                };
+
+                this.charts[chartId] = new Chart(ctx, {
+                    type: 'bubble',
+                    data: chartData,
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            createOperationRadarChart(container, title, data, sizeClass) {
+                this.createChart(container, title, data, '类别', '完成度', 'radar', false, sizeClass);
+            }
+
+            createTreeMapChart(container, title, sizeClass) {
+                const chartContainer = document.createElement('div');
+                chartContainer.className = `chart-container ${sizeClass}`;
+
+                const chartTitle = document.createElement('div');
+                chartTitle.className = 'chart-title';
+                chartTitle.textContent = title;
+
+                const content = document.createElement('div');
+                content.style.padding = '20px';
+                content.style.textAlign = 'center';
+                content.innerHTML = '<div style="color: #718096;">运营管理层级结构展示</div>';
+
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(content);
+                container.appendChild(chartContainer);
+            }
+
+            groupProjectsByProgress() {
+                const groups = [
+                    { 进度区间: '0-25%', 项目数: 0 },
+                    { 进度区间: '26-50%', 项目数: 0 },
+                    { 进度区间: '51-75%', 项目数: 0 },
+                    { 进度区间: '76-100%', 项目数: 0 }
+                ];
+
+                this.data['科研项目进度'].forEach(project => {
+                    const progress = project.执行进度 || 0;
+                    if (progress <= 25) groups[0].项目数++;
+                    else if (progress <= 50) groups[1].项目数++;
+                    else if (progress <= 75) groups[2].项目数++;
+                    else groups[3].项目数++;
+                });
+
+                return groups;
+            }
+
+            groupProjectsByCompany() {
+                const companies = {};
+                this.data['科研项目进度'].forEach(project => {
+                    companies[project.医药公司] = (companies[project.医药公司] || 0) + 1;
+                });
+
+                return Object.entries(companies).map(([company, count]) => ({
+                    医药公司: company,
+                    项目数: count
+                }));
+            }
+
+            createTable(container, tableName, data) {
+                if (!data || data.length === 0) return;
+
+                const tableContainer = document.createElement('div');
+                tableContainer.className = 'data-table-container';
+
+                const tableHeader = document.createElement('div');
+                tableHeader.className = 'table-header';
+                tableHeader.innerHTML = `<div class="table-title">${tableName}</div>`;
+
+                const table = document.createElement('table');
+                table.className = 'data-table';
+
+                // 表头
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                Object.keys(data[0]).forEach(key => {
+                    const th = document.createElement('th');
+                    th.textContent = key;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+
+                // 表体
+                const tbody = document.createElement('tbody');
+                data.forEach((row, index) => {
+                    const tr = document.createElement('tr');
+                    Object.entries(row).forEach(([key, value]) => {
+                        const td = document.createElement('td');
+                        if (typeof value === 'number') {
+                            td.className = 'number';
+                            if (key.includes('差额') || key.includes('缺口')) {
+                                td.className += value < 0 ? ' negative' : ' positive';
+                            }
+                        }
+                        td.textContent = value || '';
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+
+                tableContainer.appendChild(tableHeader);
+                tableContainer.appendChild(table);
+                container.appendChild(tableContainer);
+            }
+
+            truncateLabel(label) {
+                if (!label) return '';
+                return String(label).length > 12 ? String(label).substring(0, 12) + '...' : String(label);
+            }
+
+            clearAllCharts() {
+                // 销毁所有Chart.js实例
+                Object.values(this.charts).forEach(chart => {
+                    if (chart && typeof chart.destroy === 'function') {
+                        chart.destroy();
+                    }
+                });
+                this.charts = {};
+                this.chartIdCounter = 0;
+            }
+
+            closeDetail() {
+                const detailPanel = document.getElementById('detailPanel');
+                detailPanel.classList.remove('active');
+
+                document.querySelectorAll('.module-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+
+                // 清理所有图表
+                this.clearAllCharts();
+
+                // 清空详情内容
+                const detailContent = document.getElementById('detailContent');
+                if (detailContent) {
+                    detailContent.innerHTML = '';
+                }
+            }
+        }
+
+        // 初始化看板
+        const dashboard = new ModernInspectionDashboard();
+    </script>
+</body>
+</html>
