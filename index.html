@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>扬子江药业集团 巡视驾驶舱</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
@@ -1595,6 +1598,17 @@
                 showNotification('数据导入成功！共导入 25 条记录', 'success');
                 closeModal();
             }, 2000);
+        }
+
+        // 飞书兼容性检测
+        function isFeishuApp() {
+            return /Feishu|Lark/i.test(navigator.userAgent);
+        }
+
+        // 飞书内嵌网页优化
+        if (isFeishuApp()) {
+            document.body.style.overflow = 'auto';
+            document.body.style.webkitOverflowScrolling = 'touch';
         }
 
         // 简单的交互效果
