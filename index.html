@@ -2,10 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>扬子江药业集团 巡视驾驶舱</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
@@ -213,7 +210,7 @@
             transform: translate(-50%, -50%);
             font-size: 0.9rem;
             font-weight: bold;
-            color: #2d3748;
+            color: white;
         }
 
         .progress-labels {
@@ -346,54 +343,106 @@
         .issue-levels {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
 
         .issue-level {
-            display: flex;
-            align-items: flex-start;
-            padding: 20px;
             background: #f8f9fa;
-            border-radius: 12px;
-            border-left: 4px solid;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 6px solid;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
 
-        .issue-level.level-a { border-left-color: #dc3545; }
-        .issue-level.level-b { border-left-color: #fd7e14; }
-        .issue-level.level-c { border-left-color: #ffc107; }
-
-        .issue-indicator {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            margin-right: 15px;
-            margin-top: 2px;
+        .issue-level:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
 
-        .level-a .issue-indicator { background: #dc3545; }
-        .level-b .issue-indicator { background: #fd7e14; }
-        .level-c .issue-indicator { background: #ffc107; }
-
-        .issue-content {
-            flex: 1;
+        .issue-level.level-a { 
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+        }
+        .issue-level.level-b { 
+            border-left-color: #fd7e14;
+            background: linear-gradient(135deg, #fffaf3, #ffecd1);
+        }
+        .issue-level.level-c { 
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #fffbf0, #fff3cd);
         }
 
         .issue-header {
-            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .issue-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .level-a .issue-indicator { 
+            background: #dc3545; 
+            content: 'A';
+        }
+        .level-a .issue-indicator::after { content: 'A'; }
+
+        .level-b .issue-indicator { 
+            background: #fd7e14;
+        }
+        .level-b .issue-indicator::after { content: 'B'; }
+
+        .level-c .issue-indicator { 
+            background: #ffc107;
+            color: #333;
+        }
+        .level-c .issue-indicator::after { content: 'C'; }
+
+        .issue-title {
+            font-size: 1.2rem;
             font-weight: bold;
             color: #2d3748;
-            margin-bottom: 5px;
+            margin: 0;
         }
 
         .issue-examples {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-bottom: 8px;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            padding: 12px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 8px;
+            border-left: 3px solid;
+        }
+
+        .level-a .issue-examples { 
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .level-b .issue-examples { 
+            border-left-color: #fd7e14;
+            color: #832a0d;
+        }
+        .level-c .issue-examples { 
+            border-left-color: #ffc107;
+            color: #664d03;
         }
 
         .issue-description {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             line-height: 1.4;
+            font-style: italic;
         }
 
         .level-a .issue-description { color: #dc3545; }
@@ -678,7 +727,7 @@
                 <div class="progress-stat completed">
                     <div class="stat-label">已完成巡视</div>
                     <div class="stat-value">8家</div>
-                    <div class="stat-detail">辽宁、山西、浙江、新疆、北京、山东、成都、广州</div>
+                    <div class="stat-detail">辽宁、山西、浙江、新疆等</div>
                 </div>
                 
                 <div class="progress-stat total">
@@ -690,13 +739,13 @@
                 <div class="progress-stat percentage">
                     <div class="stat-label">完成进度</div>
                     <div class="stat-value">66.7%</div>
-                    <div class="stat-detail">超过Q3计划25%</div>
+                    <div class="stat-detail">超过Q3计划50%</div>
                 </div>
                 
                 <div class="progress-stat issues">
                     <div class="stat-label">发现问题</div>
-                    <div class="stat-value">17项</div>
-                    <div class="stat-detail">A级3项 B级6项 C级8项</div>
+                    <div class="stat-value">1119万</div>
+                    <div class="stat-detail">风险金额合计</div>
                 </div>
             </div>
 
@@ -710,7 +759,7 @@
                     </div>
                     <div class="progress-labels">
                         <div class="progress-label label-normal">进度正常</div>
-                        <div class="progress-label label-target">Q4目标8家</div>
+                        <div class="progress-label label-target">Q4目标12家</div>
                     </div>
                 </div>
             </div>
@@ -721,28 +770,15 @@
             <h2 class="section-title">核心风险指标总览</h2>
             
             <div class="risk-cards">
-                <!-- 人员风险卡片 -->
+                <!-- 业务风险卡片 -->
                 <div class="risk-card high-risk">
                     <div class="risk-header">
-                        <div class="risk-title">人员风险</div>
-                        <div class="risk-level high">高风险</div>
-                    </div>
-                    <div class="risk-value">87人</div>
-                    <div class="risk-details">
-                        总缺口 | 汰换率最高94%
-                    </div>
-                    <div class="risk-highlight">山西缺口最严重(47人)</div>
-                </div>
-
-                <!-- 财务风险卡片 -->
-                <div class="risk-card high-risk">
-                    <div class="risk-header">
-                        <div class="risk-title">财务风险</div>
+                        <div class="risk-title">业务风险</div>
                         <div class="risk-level high">高风险</div>
                     </div>
                     <div class="risk-value">930万</div>
                     <div class="risk-details">
-                        商业差额 | 近效期库存
+                        历史差额 | 应收账款538万
                     </div>
                     <div class="risk-highlight">山西差额最大(930万)</div>
                 </div>
@@ -753,11 +789,24 @@
                         <div class="risk-title">合规风险</div>
                         <div class="risk-level medium">中风险</div>
                     </div>
-                    <div class="risk-value">165万</div>
+                    <div class="risk-value">189万</div>
                     <div class="risk-details">
-                        资金回流 | 制度缺陷
+                        资金回流 | CSO转型
                     </div>
                     <div class="risk-highlight">CSO转型基本完成</div>
+                </div>
+
+                <!-- 人员风险卡片 -->
+                <div class="risk-card medium-risk">
+                    <div class="risk-header">
+                        <div class="risk-title">人员风险</div>
+                        <div class="risk-level medium">中风险</div>
+                    </div>
+                    <div class="risk-value">86%</div>
+                    <div class="risk-details">
+                        平均换岗率 | 人员流动
+                    </div>
+                    <div class="risk-highlight">换岗率偏高需关注</div>
                 </div>
 
                 <!-- 整改进度卡片 -->
@@ -766,11 +815,11 @@
                         <div class="risk-title">整改进度</div>
                         <div class="risk-level low">正常</div>
                     </div>
-                    <div class="risk-value">68%</div>
+                    <div class="risk-value">75%</div>
                     <div class="risk-details">
-                        完成率 | 17项问题
+                        完成率 | 风险管控
                     </div>
-                    <div class="risk-highlight">11项已完成整改</div>
+                    <div class="risk-highlight">学术活动697场已完成</div>
                 </div>
             </div>
         </div>
@@ -781,29 +830,41 @@
             
             <div class="issue-levels">
                 <div class="issue-level level-a">
-                    <div class="issue-indicator"></div>
-                    <div class="issue-content">
-                        <div class="issue-header">A级预警 (3项)</div>
-                        <div class="issue-examples">商业差额930万 | 人员汰换率94% | 资金回流问题</div>
-                        <div class="issue-description">需立即处理的高风险问题，建议立即上报集团</div>
+                    <div class="issue-header">
+                        <div class="issue-indicator"></div>
+                        <h3 class="issue-title">A级预警 (3项)</h3>
+                    </div>
+                    <div class="issue-examples">
+                        <strong>历史差额930万</strong> | <strong>资金回流62万</strong> | <strong>开票关联55万</strong>
+                    </div>
+                    <div class="issue-description">
+                        需立即处理的高风险问题，建议立即上报集团
                     </div>
                 </div>
 
                 <div class="issue-level level-b">
-                    <div class="issue-indicator"></div>
-                    <div class="issue-content">
-                        <div class="issue-header">B级监控 (6项)</div>
-                        <div class="issue-examples">近效期库存 | 人员缺口87人 | 科研项目滞后 | 制度体系</div>
-                        <div class="issue-description">重点跟踪的中等风险问题，需制定整改计划</div>
+                    <div class="issue-header">
+                        <div class="issue-indicator"></div>
+                        <h3 class="issue-title">B级监控 (4项)</h3>
+                    </div>
+                    <div class="issue-examples">
+                        <strong>无烟草许可49万</strong> | <strong>应收账款539万</strong> | <strong>CSO转型2户</strong> | <strong>换岗率偏高</strong>
+                    </div>
+                    <div class="issue-description">
+                        重点跟踪的中等风险问题，需制定整改计划
                     </div>
                 </div>
 
                 <div class="issue-level level-c">
-                    <div class="issue-indicator"></div>
-                    <div class="issue-content">
-                        <div class="issue-header">C级关注 (8项)</div>
-                        <div class="issue-examples">会议实效性 | HCP签约率 | 培训体系 | 业务工具完善</div>
-                        <div class="issue-description">日常监控的一般性问题，持续改进提升</div>
+                    <div class="issue-header">
+                        <div class="issue-indicator"></div>
+                        <h3 class="issue-title">C级关注 (5项)</h3>
+                    </div>
+                    <div class="issue-examples">
+                        <strong>三流不一致10万</strong> | <strong>扫码率偏低</strong> | <strong>学术执行率</strong> | <strong>CSP转型87个</strong> | <strong>制度完善</strong>
+                    </div>
+                    <div class="issue-description">
+                        日常监控的一般性问题，持续改进提升
                     </div>
                 </div>
             </div>
@@ -818,9 +879,9 @@
                     <tr>
                         <th>区域</th>
                         <th>综合风险</th>
-                        <th>人员</th>
-                        <th>财务</th>
+                        <th>业务</th>
                         <th>合规</th>
+                        <th>学术</th>
                         <th>主要问题</th>
                         <th>整改状态</th>
                         <th>负责人</th>
@@ -833,9 +894,9 @@
                         <td><span class="risk-badge risk-medium">中风险</span></td>
                         <td><span class="risk-indicator indicator-medium"></span></td>
                         <td><span class="risk-indicator indicator-low"></span></td>
-                        <td><span class="risk-indicator indicator-low"></span></td>
-                        <td class="issue-detail">汰换率94% | 制度建设5项<br>学术活动351场</td>
-                        <td class="status-text status-good">5/7已完成</td>
+                        <td><span class="risk-indicator indicator-high"></span></td>
+                        <td class="issue-detail">应收151万 | 换岗率94%<br>学术活动351场</td>
+                        <td class="status-text status-good">处理中</td>
                         <td>张总</td>
                         <td><span class="action-link">查看详情</span></td>
                     </tr>
@@ -843,10 +904,10 @@
                         <td class="region-name">山西晋云</td>
                         <td><span class="risk-badge risk-high">高风险</span></td>
                         <td><span class="risk-indicator indicator-high"></span></td>
-                        <td><span class="risk-indicator indicator-high"></span></td>
                         <td><span class="risk-indicator indicator-medium"></span></td>
-                        <td class="issue-detail">缺口47人 | 差额930万<br>汰换率94% | 制度问题4项</td>
-                        <td class="status-text status-danger">1/7待整改</td>
+                        <td><span class="risk-indicator indicator-high"></span></td>
+                        <td class="issue-detail">历史差额930万 | 应收538万<br>换岗率94% | 学术活动149场</td>
+                        <td class="status-text status-danger">待整改</td>
                         <td>王总</td>
                         <td><span class="action-link">查看详情</span></td>
                     </tr>
@@ -855,20 +916,20 @@
                         <td><span class="risk-badge risk-medium">中风险</span></td>
                         <td><span class="risk-indicator indicator-medium"></span></td>
                         <td><span class="risk-indicator indicator-low"></span></td>
-                        <td><span class="risk-indicator indicator-low"></span></td>
-                        <td class="issue-detail">缺口34人 | 汰换率92%<br>学术活动164场</td>
-                        <td class="status-text status-warning">2/7整改中</td>
+                        <td><span class="risk-indicator indicator-medium"></span></td>
+                        <td class="issue-detail">应收90万 | 换岗率92%<br>学术活动164场</td>
+                        <td class="status-text status-warning">整改中</td>
                         <td>李总</td>
                         <td><span class="action-link">查看详情</span></td>
                     </tr>
                     <tr>
                         <td class="region-name">新疆公司</td>
                         <td><span class="risk-badge risk-low">低风险</span></td>
+                        <td><span class="risk-indicator indicator-medium"></span></td>
                         <td><span class="risk-indicator indicator-low"></span></td>
                         <td><span class="risk-indicator indicator-low"></span></td>
-                        <td><span class="risk-indicator indicator-low"></span></td>
-                        <td class="issue-detail">缺口5人 | 汰换率64%<br>学术活动33场</td>
-                        <td class="status-text status-good">3/4已完成</td>
+                        <td class="issue-detail">应收139万 | 换岗率64%<br>学术活动33场</td>
+                        <td class="status-text status-good">已完成</td>
                         <td>陈总</td>
                         <td><span class="action-link">查看详情</span></td>
                     </tr>
@@ -889,10 +950,10 @@
         <div class="important-reminders">
             <div class="reminder-title">本月重要提醒</div>
             <div class="reminder-list">
-                <div class="reminder-item">山西晋云人员缺口严重，建议立即启动紧急招聘程序</div>
-                <div class="reminder-item">商业差额930万需在本月底前处理完毕，避免影响季度结算</div>
-                <div class="reminder-item">各区域汰换率过高需关注，建议优化人员管理策略</div>
-                <div class="reminder-item">CSO转型工作基本完成，需跟进后续管理措施</div>
+                <div class="reminder-item">山西晋云历史差额930万需在本月底前处理完毕，避免影响季度结算</div>
+                <div class="reminder-item">各区域应收账款总计918万需关注，建议优化账期管理策略</div>
+                <div class="reminder-item">合规风险总额189万需跟进，重点关注资金回流和开票方关联问题</div>
+                <div class="reminder-item">CSO转型剩余2户和CSP转型87个需加快处理进度</div>
             </div>
         </div>
     </div>
@@ -905,712 +966,7 @@
         </div>
     </div>
 
-    <!-- 模态框样式 -->
-    <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            margin: 5% auto;
-            padding: 0;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 1000px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 20px 20px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-
-        .close {
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-
-        .close:hover {
-            opacity: 0.7;
-        }
-
-        .modal-body {
-            padding: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-right: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d, #5a6268);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .data-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .data-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .file-upload {
-            border: 2px dashed #e2e8f0;
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-
-        .file-upload:hover {
-            border-color: #667eea;
-        }
-
-        .file-upload.dragover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            z-index: 1001;
-            animation: slideInRight 0.3s ease-out;
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .gantt-chart {
-            margin-top: 20px;
-        }
-
-        .gantt-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .gantt-label {
-            width: 200px;
-            font-weight: 600;
-        }
-
-        .gantt-bar {
-            flex: 1;
-            height: 20px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            position: relative;
-            margin: 0 20px;
-        }
-
-        .gantt-progress {
-            height: 100%;
-            background: linear-gradient(90deg, #28a745, #20c997);
-            border-radius: 10px;
-            transition: width 0.3s;
-        }
-
-        .gantt-date {
-            width: 100px;
-            text-align: right;
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-    </style>
-
     <script>
-        // 全局数据
-        const dashboardData = {
-            // 巡视计划数据
-            inspectionPlans: [
-                { id: 1, name: '辽宁海悦巡视', startDate: '2025-09-01', endDate: '2025-09-15', progress: 100, status: '已完成', responsible: '张总' },
-                { id: 2, name: '山西晋云巡视', startDate: '2025-09-16', endDate: '2025-09-30', progress: 85, status: '进行中', responsible: '王总' },
-                { id: 3, name: '浙江海潮巡视', startDate: '2025-10-01', endDate: '2025-10-15', progress: 0, status: '未开始', responsible: '李总' },
-                { id: 4, name: '新疆公司巡视', startDate: '2025-10-16', endDate: '2025-10-30', progress: 0, status: '未开始', responsible: '陈总' }
-            ],
-            // 预警设置
-            alertSettings: {
-                financialThreshold: 500, // 万元
-                personnelTurnoverThreshold: 90, // 百分比
-                complianceThreshold: 100 // 万元
-            },
-            // 问题清单数据
-            issueList: [
-                { id: 1, level: 'A', region: '山西晋云', issue: '商业差额930万', status: '待处理', responsible: '王总', deadline: '2025-09-30' },
-                { id: 2, level: 'A', region: '山西晋云', issue: '人员缺口47人', status: '处理中', responsible: '王总', deadline: '2025-10-15' },
-                { id: 3, level: 'A', region: '辽宁海悦', issue: '汰换率94%', status: '待处理', responsible: '张总', deadline: '2025-10-01' },
-                { id: 4, level: 'B', region: '浙江海潮', issue: '人员缺口34人', status: '处理中', responsible: '李总', deadline: '2025-10-20' },
-                { id: 5, level: 'B', region: '辽宁海悦', issue: '制度建设滞后', status: '待处理', responsible: '张总', deadline: '2025-10-10' },
-                { id: 6, level: 'C', region: '新疆公司', issue: '培训体系不完善', status: '待处理', responsible: '陈总', deadline: '2025-11-01' }
-            ]
-        };
-
-        // 显示通知
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 8px; height: 8px; border-radius: 50%; background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#667eea'};"></div>
-                    <span>${message}</span>
-                </div>
-            `;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // 生成月度报告
-        function generateMonthlyReport() {
-            const modal = createModal('生成月度报告', `
-                <div class="form-group">
-                    <label class="form-label">报告月份</label>
-                    <select class="form-control" id="reportMonth">
-                        <option value="2025-09">2025年9月</option>
-                        <option value="2025-08">2025年8月</option>
-                        <option value="2025-07">2025年7月</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">报告类型</label>
-                    <select class="form-control" id="reportType">
-                        <option value="summary">综合报告</option>
-                        <option value="risk">风险专项报告</option>
-                        <option value="personnel">人员专项报告</option>
-                        <option value="finance">财务专项报告</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">包含内容</label>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                        <label><input type="checkbox" checked> 巡视进度概览</label>
-                        <label><input type="checkbox" checked> 风险指标分析</label>
-                        <label><input type="checkbox" checked> 问题分级统计</label>
-                        <label><input type="checkbox" checked> 区域对比分析</label>
-                        <label><input type="checkbox" checked> 整改建议</label>
-                        <label><input type="checkbox" checked> 下月计划</label>
-                    </div>
-                </div>
-                <div style="text-align: right; margin-top: 30px;">
-                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-                    <button class="btn btn-primary" onclick="downloadReport()">生成PDF报告</button>
-                </div>
-            `);
-            document.body.appendChild(modal);
-        }
-
-        // 导出问题清单
-        function exportIssueList() {
-            const modal = createModal('导出问题清单', `
-                <div class="form-group">
-                    <label class="form-label">导出范围</label>
-                    <select class="form-control" id="exportScope">
-                        <option value="all">全部问题</option>
-                        <option value="A">A级问题</option>
-                        <option value="B">B级问题</option>
-                        <option value="C">C级问题</option>
-                        <option value="pending">待处理问题</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">导出格式</label>
-                    <select class="form-control" id="exportFormat">
-                        <option value="excel">Excel文件</option>
-                        <option value="csv">CSV文件</option>
-                        <option value="pdf">PDF文件</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">包含字段</label>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                        <label><input type="checkbox" checked> 问题等级</label>
-                        <label><input type="checkbox" checked> 所属区域</label>
-                        <label><input type="checkbox" checked> 问题描述</label>
-                        <label><input type="checkbox" checked> 处理状态</label>
-                        <label><input type="checkbox" checked> 负责人</label>
-                        <label><input type="checkbox" checked> 截止日期</label>
-                    </div>
-                </div>
-                <div style="text-align: right; margin-top: 30px;">
-                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-                    <button class="btn btn-success" onclick="downloadIssueList()">导出清单</button>
-                </div>
-            `);
-            document.body.appendChild(modal);
-        }
-
-        // 预警通知设置
-        function setupAlertNotification() {
-            const modal = createModal('预警通知设置', `
-                <div class="form-group">
-                    <label class="form-label">财务风险预警阈值（万元）</label>
-                    <input type="number" class="form-control" id="financialThreshold" value="${dashboardData.alertSettings.financialThreshold}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">人员汰换率预警阈值（%）</label>
-                    <input type="number" class="form-control" id="personnelThreshold" value="${dashboardData.alertSettings.personnelTurnoverThreshold}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">合规风险预警阈值（万元）</label>
-                    <input type="number" class="form-control" id="complianceThreshold" value="${dashboardData.alertSettings.complianceThreshold}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">通知方式</label>
-                    <div>
-                        <label><input type="checkbox" checked> 系统内通知</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">通知对象</label>
-                    <div>
-                        <label><input type="checkbox" checked> 当前页面用户</label>
-                    </div>
-                </div>
-                <div style="text-align: right; margin-top: 30px;">
-                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-                    <button class="btn btn-primary" onclick="saveAlertSettings()">保存设置</button>
-                </div>
-            `);
-            document.body.appendChild(modal);
-        }
-
-        // 巡视计划管理
-        function manageInspectionPlan() {
-            const modal = createModal('巡视计划管理', `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3>巡视计划列表</h3>
-                    <button class="btn btn-primary" onclick="addNewPlan()">新增计划</button>
-                </div>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>计划名称</th>
-                            <th>开始日期</th>
-                            <th>结束日期</th>
-                            <th>进度</th>
-                            <th>状态</th>
-                            <th>负责人</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="planTableBody">
-                        ${dashboardData.inspectionPlans.map(plan => `
-                            <tr>
-                                <td>${plan.name}</td>
-                                <td>${plan.startDate}</td>
-                                <td>${plan.endDate}</td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <div style="width: 100px; height: 8px; background: #e2e8f0; border-radius: 4px;">
-                                            <div style="width: ${plan.progress}%; height: 100%; background: #28a745; border-radius: 4px;"></div>
-                                        </div>
-                                        <span>${plan.progress}%</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span style="padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; color: white; background: ${plan.status === '已完成' ? '#28a745' : plan.status === '进行中' ? '#fd7e14' : '#6c757d'};">
-                                        ${plan.status}
-                                    </span>
-                                </td>
-                                <td>${plan.responsible}</td>
-                                <td>
-                                    <button class="btn" style="padding: 4px 8px; font-size: 0.8rem; margin: 2px;" onclick="editPlan(${plan.id})">编辑</button>
-                                    <button class="btn" style="padding: 4px 8px; font-size: 0.8rem; margin: 2px; background: #dc3545;" onclick="deletePlan(${plan.id})">删除</button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <div class="gantt-chart">
-                    <h4>甘特图视图</h4>
-                    ${dashboardData.inspectionPlans.map(plan => `
-                        <div class="gantt-item">
-                            <div class="gantt-label">${plan.name}</div>
-                            <div class="gantt-bar">
-                                <div class="gantt-progress" style="width: ${plan.progress}%;"></div>
-                            </div>
-                            <div class="gantt-date">${plan.startDate} - ${plan.endDate}</div>
-                        </div>
-                    `).join('')}
-                </div>
-                <div style="text-align: right; margin-top: 30px;">
-                    <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
-                </div>
-            `);
-            document.body.appendChild(modal);
-        }
-
-        // 数据导入功能
-        function importData() {
-            const modal = createModal('数据导入', `
-                <div class="form-group">
-                    <label class="form-label">选择数据模板</label>
-                    <select class="form-control" id="dataTemplate">
-                        <option value="personnel">人员数据模板</option>
-                        <option value="finance">财务数据模板</option>
-                        <option value="compliance">合规数据模板</option>
-                        <option value="inspection">巡视数据模板</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">下载模板</label>
-                    <button class="btn btn-primary" onclick="downloadTemplate()">下载Excel模板</button>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">上传数据文件</label>
-                    <div class="file-upload" id="fileUpload" onclick="document.getElementById('fileInput').click()">
-                        <div style="font-size: 1.2rem; margin-bottom: 10px;">📁</div>
-                        <div>点击选择文件或拖拽文件到此处</div>
-                        <div style="font-size: 0.9rem; color: #6c757d; margin-top: 5px;">支持 .xlsx, .xls, .csv 格式</div>
-                    </div>
-                    <input type="file" id="fileInput" style="display: none;" accept=".xlsx,.xls,.csv" onchange="handleFileUpload(event)">
-                </div>
-                <div class="form-group" id="previewSection" style="display: none;">
-                    <label class="form-label">数据预览</label>
-                    <div id="dataPreview" style="max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;"></div>
-                </div>
-                <div style="text-align: right; margin-top: 30px;">
-                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-                    <button class="btn btn-success" id="importBtn" onclick="importDataFile()" style="display: none;">导入数据</button>
-                </div>
-            `);
-            document.body.appendChild(modal);
-        }
-
-        // 创建模态框
-        function createModal(title, content) {
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'block';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div class="modal-title">${title}</div>
-                        <span class="close" onclick="closeModal()">&times;</span>
-                    </div>
-                    <div class="modal-body">
-                        ${content}
-                    </div>
-                </div>
-            `;
-            return modal;
-        }
-
-        // 关闭模态框
-        function closeModal() {
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => modal.remove());
-        }
-
-        // 下载报告
-        function downloadReport() {
-            showNotification('正在生成PDF报告，请稍候...', 'info');
-            setTimeout(() => {
-                showNotification('PDF报告生成成功！', 'success');
-                closeModal();
-            }, 2000);
-        }
-
-        // 下载问题清单
-        function downloadIssueList() {
-            showNotification('正在导出问题清单...', 'info');
-            setTimeout(() => {
-                showNotification('问题清单导出成功！', 'success');
-                closeModal();
-            }, 1500);
-        }
-
-        // 保存预警设置
-        function saveAlertSettings() {
-            dashboardData.alertSettings.financialThreshold = document.getElementById('financialThreshold').value;
-            dashboardData.alertSettings.personnelTurnoverThreshold = document.getElementById('personnelThreshold').value;
-            dashboardData.alertSettings.complianceThreshold = document.getElementById('complianceThreshold').value;
-            showNotification('预警设置保存成功！', 'success');
-            closeModal();
-        }
-
-        // 新增计划
-        function addNewPlan() {
-            const modal = createModal('新增巡视计划', `
-                <div class="form-group">
-                    <label class="form-label">计划名称</label>
-                    <input type="text" class="form-control" id="planName" placeholder="请输入计划名称">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">开始日期</label>
-                    <input type="date" class="form-control" id="startDate">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">结束日期</label>
-                    <input type="date" class="form-control" id="endDate">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">负责人</label>
-                    <select class="form-control" id="responsible">
-                        <option value="张总">张总</option>
-                        <option value="王总">王总</option>
-                        <option value="李总">李总</option>
-                        <option value="陈总">陈总</option>
-                    </select>
-                </div>
-                <div style="text-align: right; margin-top: 30px;">
-                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-                    <button class="btn btn-primary" onclick="saveNewPlan()">保存</button>
-                </div>
-            `);
-            document.body.appendChild(modal);
-        }
-
-        // 保存新计划
-        function saveNewPlan() {
-            const newPlan = {
-                id: dashboardData.inspectionPlans.length + 1,
-                name: document.getElementById('planName').value,
-                startDate: document.getElementById('startDate').value,
-                endDate: document.getElementById('endDate').value,
-                progress: 0,
-                status: '未开始',
-                responsible: document.getElementById('responsible').value
-            };
-            dashboardData.inspectionPlans.push(newPlan);
-            showNotification('计划添加成功！', 'success');
-            closeModal();
-        }
-
-        // 编辑计划
-        function editPlan(id) {
-            const plan = dashboardData.inspectionPlans.find(p => p.id === id);
-            const modal = createModal('编辑巡视计划', `
-                <div class="form-group">
-                    <label class="form-label">计划名称</label>
-                    <input type="text" class="form-control" id="editPlanName" value="${plan.name}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">开始日期</label>
-                    <input type="date" class="form-control" id="editStartDate" value="${plan.startDate}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">结束日期</label>
-                    <input type="date" class="form-control" id="editEndDate" value="${plan.endDate}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">进度（%）</label>
-                    <input type="number" class="form-control" id="editProgress" value="${plan.progress}" min="0" max="100">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">状态</label>
-                    <select class="form-control" id="editStatus">
-                        <option value="未开始" ${plan.status === '未开始' ? 'selected' : ''}>未开始</option>
-                        <option value="进行中" ${plan.status === '进行中' ? 'selected' : ''}>进行中</option>
-                        <option value="已完成" ${plan.status === '已完成' ? 'selected' : ''}>已完成</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">负责人</label>
-                    <select class="form-control" id="editResponsible">
-                        <option value="张总" ${plan.responsible === '张总' ? 'selected' : ''}>张总</option>
-                        <option value="王总" ${plan.responsible === '王总' ? 'selected' : ''}>王总</option>
-                        <option value="李总" ${plan.responsible === '李总' ? 'selected' : ''}>李总</option>
-                        <option value="陈总" ${plan.responsible === '陈总' ? 'selected' : ''}>陈总</option>
-                    </select>
-                </div>
-                <div style="text-align: right; margin-top: 30px;">
-                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-                    <button class="btn btn-primary" onclick="saveEditPlan(${id})">保存</button>
-                </div>
-            `);
-            document.body.appendChild(modal);
-        }
-
-        // 保存编辑计划
-        function saveEditPlan(id) {
-            const plan = dashboardData.inspectionPlans.find(p => p.id === id);
-            plan.name = document.getElementById('editPlanName').value;
-            plan.startDate = document.getElementById('editStartDate').value;
-            plan.endDate = document.getElementById('editEndDate').value;
-            plan.progress = parseInt(document.getElementById('editProgress').value);
-            plan.status = document.getElementById('editStatus').value;
-            plan.responsible = document.getElementById('editResponsible').value;
-            showNotification('计划更新成功！', 'success');
-            closeModal();
-        }
-
-        // 删除计划
-        function deletePlan(id) {
-            if (confirm('确定要删除这个计划吗？')) {
-                dashboardData.inspectionPlans = dashboardData.inspectionPlans.filter(p => p.id !== id);
-                showNotification('计划删除成功！', 'success');
-                closeModal();
-            }
-        }
-
-        // 下载模板
-        function downloadTemplate() {
-            showNotification('正在下载模板文件...', 'info');
-            setTimeout(() => {
-                showNotification('模板下载成功！', 'success');
-            }, 1000);
-        }
-
-        // 处理文件上传
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                showNotification('文件上传成功，正在解析...', 'info');
-                setTimeout(() => {
-                    document.getElementById('previewSection').style.display = 'block';
-                    document.getElementById('importBtn').style.display = 'inline-block';
-                    document.getElementById('dataPreview').innerHTML = `
-                        <div style="color: #28a745; font-weight: 600; margin-bottom: 10px;">✓ 文件解析成功</div>
-                        <div>文件名: ${file.name}</div>
-                        <div>文件大小: ${(file.size / 1024).toFixed(2)} KB</div>
-                        <div>预计导入: 25 条数据记录</div>
-                    `;
-                }, 1500);
-            }
-        }
-
-        // 导入数据文件
-        function importDataFile() {
-            showNotification('正在导入数据...', 'info');
-            setTimeout(() => {
-                showNotification('数据导入成功！共导入 25 条记录', 'success');
-                closeModal();
-            }, 2000);
-        }
-
-        // 飞书兼容性检测
-        function isFeishuApp() {
-            return /Feishu|Lark/i.test(navigator.userAgent);
-        }
-
-        // 飞书内嵌网页优化
-        if (isFeishuApp()) {
-            document.body.style.overflow = 'auto';
-            document.body.style.webkitOverflowScrolling = 'touch';
-        }
-
         // 简单的交互效果
         document.addEventListener('DOMContentLoaded', function() {
             // 添加卡片悬停效果
@@ -1629,7 +985,7 @@
 
             // 快速操作按钮点击效果
             const actionBtns = document.querySelectorAll('.action-btn');
-            actionBtns.forEach((btn, index) => {
+            actionBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     // 简单的点击反馈
                     this.style.transform = 'scale(0.95)';
@@ -1637,18 +993,8 @@
                         this.style.transform = 'scale(1)';
                     }, 150);
                     
-                    // 根据按钮索引调用对应功能
-                    const functions = [
-                        generateMonthlyReport,
-                        exportIssueList,
-                        setupAlertNotification,
-                        () => showNotification('历史趋势功能开发中...', 'info'),
-                        manageInspectionPlan
-                    ];
-                    
-                    if (functions[index]) {
-                        functions[index]();
-                    }
+                    // 这里可以添加具体的功能逻辑
+                    console.log('点击了：', this.textContent);
                 });
             });
 
@@ -1680,15 +1026,6 @@
 
             // 每分钟更新一次时间
             setInterval(updateTime, 60000);
-
-            // 添加数据导入按钮到头部
-            const headerStatus = document.querySelector('.header-status');
-            const importBtn = document.createElement('button');
-            importBtn.className = 'btn btn-primary';
-            importBtn.style.cssText = 'padding: 8px 16px; border: none; border-radius: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-weight: bold; cursor: pointer;';
-            importBtn.textContent = '数据导入';
-            importBtn.onclick = importData;
-            headerStatus.appendChild(importBtn);
         });
     </script>
 </body>
